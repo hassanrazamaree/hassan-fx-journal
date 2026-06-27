@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hassan FX — Trading Journal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+  --bg:#080d18;--s1:#0e1523;--s2:#141d2e;--s3:#1a2440;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --gold:#f5a623;--gold2:#ffd166;--gold-dim:rgba(245,166,35,0.10);
+  --green:#22d47a;--green-dim:rgba(34,212,122,0.10);
+  --red:#ff4d6d;--red-dim:rgba(255,77,109,0.10);
+  --blue:#4f8ef7;--blue-dim:rgba(79,142,247,0.10);
+  --purple:#a78bfa;--purple-dim:rgba(167,139,250,0.10);
+  --text:#eef2f8;--text2:#8896b0;--text3:#3d4f6a;
+  --r:10px;--mono:'JetBrains Mono',monospace;--sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
+
+.topbar{background:var(--s1);border-bottom:1px solid var(--border2);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200;gap:1rem;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#000;}
+.logo-text{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.topbar-stats{display:flex;gap:1.5rem;}
+.ts{text-align:right;}
+.ts-val{font-size:16px;font-weight:700;font-family:var(--mono);color:var(--gold);}
+.ts-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:1px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+.sync-ok{background:var(--green);}
+.sync-err{background:var(--red);}
+.sync-loading{background:var(--gold);animation:pulse 1s infinite;}
+
+.month-nav{display:flex;overflow-x:auto;gap:6px;padding:1rem 1.5rem;background:var(--s1);border-bottom:1px solid var(--border);scrollbar-width:none;position:sticky;top:56px;z-index:100;}
+.month-nav::-webkit-scrollbar{display:none;}
+.mtab{flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap;font-family:var(--sans);}
+.mtab:hover{border-color:var(--gold);color:var(--gold);}
+.mtab.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+.mtab.has-data::after{content:'';width:5px;height:5px;background:var(--green);border-radius:50%;display:inline-block;margin-left:5px;vertical-align:middle;}
+.mtab.goal-done{border-color:var(--green)!important;color:var(--green)!important;}
+.mtab.goal-done.active{background:var(--green);color:#000!important;}
+.mtab.phase-tab{border-color:var(--purple);color:var(--purple);}
+.mtab.phase-tab.active{background:var(--purple);color:#fff;}
+
+main{padding:1.5rem;max-width:1080px;margin:0 auto;}
+
+.month-hero{background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:center;}
+.mh-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+.mh-month{font-size:24px;font-weight:700;letter-spacing:-.5px;}
+.mh-sub{font-size:12px;color:var(--text2);margin-top:4px;}
+.mh-sub span{color:var(--gold);font-family:var(--mono);}
+.mh-balance{text-align:right;}
+.mh-bal-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.mh-bal-val{font-size:28px;font-weight:700;font-family:var(--mono);transition:color .3s;}
+.mh-bal-delta{font-size:13px;margin-top:3px;font-family:var(--mono);}
+
+.prog-wrap{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1.25rem;}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.prog-label{font-size:12px;color:var(--text2);}
+.prog-pct{font-size:13px;font-weight:700;font-family:var(--mono);}
+.prog-track{background:var(--s3);border-radius:6px;height:10px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:6px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.prog-milestones{display:flex;justify-content:space-between;margin-top:6px;}
+.prog-m{font-size:10px;color:var(--text3);}
+
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:1.25rem;}
+.scard{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:.85rem 1rem;position:relative;overflow:hidden;}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0;}
+.scard.gold::before{background:var(--gold);}
+.scard.green::before{background:var(--green);}
+.scard.red::before{background:var(--red);}
+.scard.blue::before{background:var(--blue);}
+.scard.purple::before{background:var(--purple);}
+.sc-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.sc-val{font-size:22px;font-weight:700;font-family:var(--mono);}
+.sc-val.gold{color:var(--gold);}
+.sc-val.green{color:var(--green);}
+.sc-val.red{color:var(--red);}
+.sc-val.blue{color:var(--blue);}
+.sc-val.purple{color:var(--purple);}
+.sc-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+
+.live-ticker{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:.65rem 1rem;margin-bottom:1.25rem;}
+.lt-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.lt-text{font-size:12px;color:var(--text2);font-family:var(--mono);}
+.lt-text span{color:var(--text);}
+
+.add-section{background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;}
+.section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;}
+.fg input,.fg select{background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--text);padding:8px 10px;font-size:13px;outline:none;width:100%;font-family:var(--sans);transition:border-color .15s;}
+.fg input:focus,.fg select:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-dim);}
+.fg select option{background:var(--s2);}
+.form-actions{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap;}
+.btn{padding:8px 20px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;font-family:var(--sans);}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-gold:hover{background:var(--gold2);}
+.btn-gold:disabled{opacity:.5;cursor:not-allowed;}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--text2);color:var(--text);}
+.rr-preview{font-size:12px;color:var(--text3);font-family:var(--mono);}
+
+.trades-wrap{background:var(--s2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.tw-header{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.25rem;border-bottom:1px solid var(--border);}
+.tw-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;}
+.tw-badge{font-size:11px;color:var(--text2);background:var(--s3);padding:3px 10px;border-radius:20px;}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:9px 12px;text-align:left;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:500;background:var(--s3);white-space:nowrap;}
+tbody tr{border-top:1px solid var(--border);transition:background .1s;}
+tbody tr:hover{background:rgba(255,255,255,.02);}
+tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle;white-space:nowrap;}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;}
+.bw{background:var(--green-dim);color:var(--green);}
+.bl{background:var(--red-dim);color:var(--red);}
+.bb{background:var(--blue-dim);color:var(--blue);}
+.bo{background:var(--gold-dim);color:var(--gold);}
+.src{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;}
+.sTP{background:var(--blue-dim);color:var(--blue);}
+.sSR{background:var(--purple-dim);color:var(--purple);}
+.sEC{background:var(--green-dim);color:var(--green);}
+.sHF{background:var(--gold-dim);color:var(--gold);}
+.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:3px 7px;border-radius:5px;transition:all .15s;}
+.del-btn:hover{color:var(--red);background:var(--red-dim);}
+.del-btn:disabled{opacity:.3;cursor:not-allowed;}
+.empty-row td{text-align:center;color:var(--text3);padding:3rem;font-size:13px;}
+.pnl-cell{font-family:var(--mono);font-weight:600;}
+.pnl-pos{color:var(--green);}
+.pnl-neg{color:var(--red);}
+.entry-cell{font-family:var(--mono);font-size:12px;color:var(--text2);}
+
+.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;}
+@media(max-width:600px){.ov-grid{grid-template-columns:1fr;}}
+.ov-card{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:1.25rem;}
+.ov-card-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:1rem;}
+.bal-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.bal-item:last-child{border-bottom:none;}
+.bi-num{font-size:11px;color:var(--text3);width:18px;flex-shrink:0;}
+.bi-info{flex:1;}
+.bi-label{font-size:12px;color:var(--text2);}
+.bi-bar-wrap{background:var(--s3);border-radius:3px;height:4px;margin-top:4px;overflow:hidden;}
+.bi-bar{height:100%;border-radius:3px;transition:width .5s;}
+.bi-right{text-align:right;}
+.bi-val{font-size:14px;font-weight:700;font-family:var(--mono);}
+.bi-pct{font-size:10px;padding:2px 6px;border-radius:4px;margin-top:2px;display:inline-block;}
+.pct-pos{background:var(--green-dim);color:var(--green);}
+.pct-neg{background:var(--red-dim);color:var(--red);}
+.pct-none{color:var(--text3);}
+.overall-goal{background:linear-gradient(135deg,var(--s2),var(--s3));border:1px solid var(--gold);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;text-align:center;}
+.og-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:.5rem;}
+.og-val{font-size:40px;font-weight:700;font-family:var(--mono);color:var(--gold);}
+.og-sub{font-size:13px;color:var(--text2);margin-top:.5rem;}
+
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--text3);gap:10px;font-size:13px;}
+.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:.75rem 1.25rem;font-size:13px;font-weight:500;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px;max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:var(--green);}
+.toast.error{border-color:var(--red);}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeIn .25s ease;}
+
+/* ── PHASE PLAN STYLES ── */
+.phase-header{background:linear-gradient(135deg,#1a1040,#0e1523);border:1px solid var(--purple);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;text-align:center;}
+.phase-header h2{font-size:22px;font-weight:700;color:var(--purple);margin-bottom:.4rem;}
+.phase-header p{font-size:13px;color:var(--text2);}
+.phase-header .current-badge{display:inline-block;background:var(--gold);color:#000;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-top:.6rem;}
+
+.phases-grid{display:flex;flex-direction:column;gap:16px;margin-bottom:1.25rem;}
+.phase-card{background:var(--s2);border:1px solid var(--border2);border-radius:14px;overflow:hidden;transition:border-color .2s;}
+.phase-card.active-phase{border-color:var(--gold);}
+.phase-card.completed-phase{border-color:var(--green);}
+.phase-card.locked-phase{opacity:.55;}
+
+.phase-card-header{display:flex;align-items:center;gap:14px;padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);}
+.phase-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;}
+.pn-active{background:var(--gold);color:#000;}
+.pn-done{background:var(--green);color:#000;}
+.pn-locked{background:var(--s3);color:var(--text3);}
+.phase-card-title{flex:1;}
+.pct-name{font-size:15px;font-weight:700;}
+.pct-range{font-size:12px;color:var(--text2);margin-top:2px;font-family:var(--mono);}
+.phase-status-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;}
+.psb-active{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold);}
+.psb-done{background:var(--green-dim);color:var(--green);border:1px solid var(--green);}
+.psb-locked{background:var(--s3);color:var(--text3);border:1px solid var(--border2);}
+
+.phase-card-body{padding:1.1rem 1.25rem;}
+.phase-months-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:1rem;}
+.pm-item{background:var(--s3);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;}
+.pm-label{font-size:11px;color:var(--text2);}
+.pm-range{font-size:12px;font-weight:600;font-family:var(--mono);color:var(--text);}
+.pm-done{border-left:3px solid var(--green);}
+.pm-current{border-left:3px solid var(--gold);}
+
+.phase-footer{display:flex;gap:12px;flex-wrap:wrap;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border);}
+.pf-item{font-size:11px;color:var(--text3);}
+.pf-item span{color:var(--text2);font-weight:600;}
+
+/* Honda unlock card */
+.honda-card{background:linear-gradient(135deg,#1a1200,#0e1523);border:2px solid var(--gold);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;display:flex;gap:1.5rem;align-items:center;}
+.honda-card.locked{border-color:var(--border2);filter:grayscale(1);opacity:.5;}
+.honda-img{width:200px;height:120px;object-fit:contain;flex-shrink:0;}
+.honda-info{flex:1;}
+.honda-title{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:.3rem;}
+.honda-sub{font-size:12px;color:var(--text2);margin-bottom:.75rem;}
+.honda-lock-msg{font-size:13px;color:var(--text3);font-style:italic;}
+.honda-unlocked-msg{font-size:13px;color:var(--green);font-weight:600;}
+.honda-prog-wrap{margin-top:.75rem;}
+.honda-prog-label{font-size:11px;color:var(--text3);margin-bottom:4px;}
+.honda-prog-track{background:var(--s3);border-radius:6px;height:8px;overflow:hidden;}
+.honda-prog-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s;}
+
+@media(max-width:640px){
+  .topbar{padding:0 1rem;}
+  .topbar-stats .ts:nth-child(2){display:none;}
+  main{padding:1rem;}
+  .month-hero{grid-template-columns:1fr;}
+  .mh-balance{text-align:left;}
+  th:nth-child(5),td:nth-child(5),th:nth-child(6),td:nth-child(6),th:nth-child(10),td:nth-child(10){display:none;}
+  .form-grid{grid-template-columns:1fr 1fr;}
+  .honda-card{flex-direction:column;}
+  .honda-img{width:100%;height:150px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">H</div>
+    <div>
+      <div class="logo-text">Hassan FX</div>
+      <div class="logo-sub" id="topbar-phase-label">Phase 1 · $100 → $500 · 9 Months</div>
+    </div>
+  </div>
+  <div class="topbar-stats">
+    <div class="ts">
+      <div class="ts-val" id="tb-sync"><span class="sync-dot sync-loading"></span>Syncing...</div>
+      <div class="ts-lbl">Supabase</div>
+    </div>
+    <div class="ts">
+      <div class="ts-val" id="tb-balance">$100.00</div>
+      <div class="ts-lbl">Live Balance</div>
+    </div>
+    <div class="ts">
+      <div class="ts-val" id="tb-wr" style="color:var(--blue)">—</div>
+      <div class="ts-lbl">Win Rate</div>
+    </div>
+    <div class="ts">
+      <div class="ts-val" id="tb-trades" style="color:var(--text2)">0</div>
+      <div class="ts-lbl">Trades</div>
+    </div>
+  </div>
+</div>
+
+<nav class="month-nav" id="monthNav"></nav>
+<main id="mainContent"><div class="loading-overlay"><div class="spinner"></div> Loading trades from Supabase...</div></main>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://idkfnshmbmajkoxixryw.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlka2Zuc2htYm1hamtveGl4cnl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MzYzMTQsImV4cCI6MjA5ODExMjMxNH0.pQqecn7bWN8Pse2mG8hR01HT-2Itb8HSO0y1Z8M5SY0';
+const HEADERS = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+
+// ── PHASE PLAN DATA ───────────────────────────────────────
+const PHASE_PLAN = [
+  {
+    num:1, label:'Phase 1', start:100, target:500,
+    withdraw:250, next:250, months:9, timeline:'~9 months',
+    kharch:0, backup:250,
+    monthTargets:[
+      {l:'Month 1',s:100,t:120},{l:'Month 2',s:120,t:144},{l:'Month 3',s:144,t:173},
+      {l:'Month 4',s:173,t:207},{l:'Month 5',s:207,t:249},{l:'Month 6',s:249,t:299},
+      {l:'Month 7',s:299,t:358},{l:'Month 8',s:358,t:430},{l:'Month 9',s:430,t:516}
+    ]
+  },
+  {
+    num:2, label:'Phase 2', start:250, target:1000,
+    withdraw:500, next:500, months:8, timeline:'~8 months',
+    kharch:250, backup:500,
+    monthTargets:[
+      {l:'Month 1',s:250,t:300},{l:'Month 2',s:300,t:360},{l:'Month 3',s:360,t:432},
+      {l:'Month 4',s:432,t:518},{l:'Month 5',s:518,t:622},{l:'Month 6',s:622,t:746},
+      {l:'Month 7',s:746,t:895},{l:'Month 8',s:895,t:1074}
+    ]
+  },
+  {
+    num:3, label:'Phase 3', start:500, target:5000,
+    withdraw:2500, next:2500, months:13, timeline:'~13 months',
+    kharch:500, backup:2500,
+    monthTargets:[
+      {l:'Month 1',s:500,t:600},{l:'Month 2',s:600,t:720},{l:'Month 3',s:720,t:864},
+      {l:'Month 4',s:864,t:1037},{l:'Month 5',s:1037,t:1244},{l:'Month 6',s:1244,t:1493},
+      {l:'Month 7',s:1493,t:1792},{l:'Month 8',s:1792,t:2150},{l:'Month 9',s:2150,t:2580},
+      {l:'Month 10',s:2580,t:3096},{l:'Month 11',s:3096,t:3715},{l:'Month 12',s:3715,t:4458},
+      {l:'Month 13',s:4458,t:5350}
+    ]
+  },
+  {
+    num:4, label:'Phase 4', start:2500, target:10000,
+    withdraw:5000, next:5000, months:8, timeline:'~8 months',
+    kharch:2500, backup:5000,
+    monthTargets:[
+      {l:'Month 1',s:2500,t:3000},{l:'Month 2',s:3000,t:3600},{l:'Month 3',s:3600,t:4320},
+      {l:'Month 4',s:4320,t:5184},{l:'Month 5',s:5184,t:6221},{l:'Month 6',s:6221,t:7465},
+      {l:'Month 7',s:7465,t:8958},{l:'Month 8',s:8958,t:10750}
+    ]
+  }
+];
+
+// Phase 1 months for journal tabs
+const MONTHS = PHASE_PLAN[0].monthTargets;
+const PAIRS=['XAUUSD','EURUSD','GBPUSD','USDJPY','USDCHF','AUDUSD','USDCAD','NZDUSD','GBPJPY','EURJPY','XAGUSD'];
+const SRCS=['TP','SR','EC','HF'];
+const HONDA_IMG = 'https://graficsea.com/wp-content/uploads/2022/02/Honda-CG-125-Euro-2-Motorcycle.jpg';
+
+let allTrades = [];
+let cur = 0; // 0-8 = month tabs, -1 = overview, -2 = phase plan
+let loading = false;
+
+// ── SUPABASE API ──────────────────────────────────────────
+async function sbFetch(){
+  const res = await fetch(`${SB_URL}/rest/v1/journal_trades?select=*&order=created_at.asc`, {headers:HEADERS});
+  if(!res.ok) throw new Error('Fetch failed: '+res.status);
+  return await res.json();
+}
+
+async function sbInsert(trade){
+  const res = await fetch(`${SB_URL}/rest/v1/journal_trades`, {
+    method:'POST',
+    headers:{...HEADERS,'Prefer':'return=representation'},
+    body: JSON.stringify(trade)
+  });
+  if(!res.ok){const e=await res.text();throw new Error(e);}
+  return await res.json();
+}
+
+async function sbDelete(id){
+  const res = await fetch(`${SB_URL}/rest/v1/journal_trades?id=eq.${id}`, {
+    method:'DELETE',
+    headers:HEADERS
+  });
+  if(!res.ok) throw new Error('Delete failed');
+}
+
+async function loadAllTrades(){
+  setSyncStatus('loading');
+  try {
+    allTrades = await sbFetch();
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('err');
+    toast('Supabase connection error: '+e.message,'error');
+    allTrades = [];
+  }
+}
+
+function setSyncStatus(state){
+  const el = document.getElementById('tb-sync');
+  if(state==='ok') el.innerHTML='<span class="sync-dot sync-ok"></span>Connected';
+  else if(state==='err') el.innerHTML='<span class="sync-dot sync-err"></span>Error';
+  else el.innerHTML='<span class="sync-dot sync-loading"></span>Syncing...';
+}
+
+// ── DATA HELPERS ──────────────────────────────────────────
+function tradesForMonth(m){ return allTrades.filter(t=>t.month_num===m); }
+
+function liveBalance(m){
+  // m = 0-indexed month index
+  return MONTHS[m].s + tradesForMonth(m+1).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+}
+
+function globalBalance(){
+  return 100 + allTrades.reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+}
+
+const PHASE_GOAL = 500;
+const PHASE_START = 100;
+
+function stats(arr){
+  const closed=arr.filter(t=>t.result!=='Open');
+  const wins=closed.filter(t=>t.result==='Win');
+  const losses=closed.filter(t=>t.result==='Loss');
+  const bes=closed.filter(t=>t.result==='BE');
+  const totalPnl=arr.reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+  const wr=closed.length?Math.round(wins.length/closed.length*100):0;
+  return{total:arr.length,closed:closed.length,wins:wins.length,losses:losses.length,bes:bes.length,totalPnl,wr};
+}
+
+function globalStats(){ return stats(allTrades); }
+
+// ── CURRENT PHASE DETECTION ───────────────────────────────
+function getCurrentPhaseInfo(){
+  const gb = globalBalance();
+  if(gb < 500) return {phase:1, label:'Phase 1', progress:((gb-100)/400*100).toFixed(1)};
+  if(gb < 1000) return {phase:2, label:'Phase 2', progress:((gb-250)/750*100).toFixed(1)};
+  if(gb < 5000) return {phase:3, label:'Phase 3', progress:((gb-500)/4500*100).toFixed(1)};
+  return {phase:4, label:'Phase 4', progress:((gb-2500)/7500*100).toFixed(1)};
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function toast(msg,type='success'){
+  const el=document.getElementById('toast');
+  el.innerHTML=(type==='success'?'<span style="color:var(--green)">✓</span> ':'<span style="color:var(--red)">✕</span> ')+msg;
+  el.className='toast show '+type;
+  setTimeout(()=>{el.className='toast';},3000);
+}
+
+// ── TOPBAR ────────────────────────────────────────────────
+function updateTopbar(){
+  const gb=globalBalance();
+  const gs=globalStats();
+  const pi=getCurrentPhaseInfo();
+  document.getElementById('tb-balance').textContent='$'+gb.toFixed(2);
+  document.getElementById('tb-balance').style.color=gb>=100?'var(--gold)':'var(--red)';
+  document.getElementById('tb-wr').textContent=gs.closed>0?gs.wr+'%':'—';
+  document.getElementById('tb-trades').textContent=gs.total;
+  document.getElementById('topbar-phase-label').textContent=pi.label+' · Running';
+}
+
+// ── TABS ──────────────────────────────────────────────────
+function renderTabs(){
+  const nav=document.getElementById('monthNav');
+  nav.innerHTML='';
+
+  // Overview tab
+  const ov=document.createElement('button');
+  ov.className='mtab'+(cur===-1?' active':'');
+  ov.textContent='Overview';
+  ov.onclick=()=>{cur=-1;renderPage();};
+  nav.appendChild(ov);
+
+  // Phase Plan tab
+  const pp=document.createElement('button');
+  pp.className='mtab phase-tab'+(cur===-2?' active':'');
+  pp.textContent='🗺️ Phase Plan';
+  pp.onclick=()=>{cur=-2;renderPage();};
+  nav.appendChild(pp);
+
+  // Month tabs (only 9 months = Phase 1)
+  MONTHS.forEach((m,i)=>{
+    const arr=tradesForMonth(i+1);
+    const bal=liveBalance(i);
+    const done=arr.length>0&&bal>=m.t;
+    const btn=document.createElement('button');
+    btn.className='mtab'+(cur===i?' active':'')+(arr.length>0?' has-data':'')+(done?' goal-done':'');
+    btn.textContent=m.l;
+    btn.onclick=()=>{cur=i;renderPage();};
+    nav.appendChild(btn);
+  });
+}
+
+// ── MONTH VIEW ────────────────────────────────────────────
+function renderMonth(m){
+  const info=MONTHS[m];
+  const monthNum=m+1;
+  const arr=tradesForMonth(monthNum);
+  const st=stats(arr);
+  const bal=liveBalance(m);
+  const diff=bal-info.s;
+  const need=info.t-info.s;
+  const prog=Math.max(0,Math.min(100,(diff/need)*100));
+  const goalDone=bal>=info.t;
+  const balColor=goalDone?'var(--green)':diff>=0?'var(--gold)':'var(--red)';
+  const diffStr=(diff>=0?'+':'')+diff.toFixed(2);
+
+  const lastTrade=arr.length>0?arr[arr.length-1]:null;
+  const tickerHtml=lastTrade?`
+    <div class="live-ticker fade-in">
+      <div class="lt-dot"></div>
+      <div class="lt-text">Last: <span>${lastTrade.pair}</span> ${lastTrade.result==='Win'?'✓ WIN':'✕ LOSS'} &nbsp;·&nbsp; PnL: <span class="${parseFloat(lastTrade.pnl)>=0?'pnl-pos':'pnl-neg'}">${parseFloat(lastTrade.pnl)>=0?'+':''}$${parseFloat(lastTrade.pnl).toFixed(2)}</span> &nbsp;·&nbsp; Balance: <span>$${bal.toFixed(2)}</span></div>
+    </div>`:'';
+
+  let html=`
+  <div class="month-hero fade-in">
+    <div>
+      <div class="mh-title">Trading Period</div>
+      <div class="mh-month">${info.l}</div>
+      <div class="mh-sub">Start: <span>$${info.s}</span> &nbsp;·&nbsp; Target: <span>$${info.t}</span> &nbsp;·&nbsp; Need: <span>+$${need.toFixed(0)}</span></div>
+    </div>
+    <div class="mh-balance">
+      <div class="mh-bal-lbl">Live Balance</div>
+      <div class="mh-bal-val" style="color:${balColor}">$${bal.toFixed(2)}</div>
+      <div class="mh-bal-delta" style="color:${diff>=0?'var(--green)':'var(--red)'}">${diffStr} (${((diff/info.s)*100).toFixed(1)}%)</div>
+    </div>
+  </div>
+
+  <div class="prog-wrap fade-in">
+    <div class="prog-top">
+      <span class="prog-label">Monthly Goal · $${info.s} → $${info.t}</span>
+      <span class="prog-pct" style="color:${goalDone?'var(--green)':'var(--gold)'}">${goalDone?'✓ GOAL REACHED':prog.toFixed(1)+'%'}</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" style="width:${prog}%;background:${goalDone?'var(--green)':'linear-gradient(90deg,var(--gold),#ffd166)'}"></div>
+    </div>
+    <div class="prog-milestones">
+      <span class="prog-m">$${info.s}</span><span class="prog-m">25%</span><span class="prog-m">50%</span><span class="prog-m">75%</span><span class="prog-m">$${info.t}</span>
+    </div>
+  </div>
+
+  ${tickerHtml}
+
+  <div class="stats-row fade-in">
+    <div class="scard gold"><div class="sc-lbl">Balance</div><div class="sc-val gold">$${bal.toFixed(2)}</div><div class="sc-sub">Started $${info.s}</div></div>
+    <div class="scard green"><div class="sc-lbl">P&L</div><div class="sc-val ${diff>=0?'green':'red'}">${diff>=0?'+':''}$${diff.toFixed(2)}</div><div class="sc-sub">${((diff/info.s)*100).toFixed(1)}%</div></div>
+    <div class="scard blue"><div class="sc-lbl">Win Rate</div><div class="sc-val blue">${st.wr}%</div><div class="sc-sub">${st.wins}W ${st.losses}L ${st.bes}BE</div></div>
+    <div class="scard purple"><div class="sc-lbl">Trades</div><div class="sc-val purple">${st.total}</div><div class="sc-sub">${st.closed} closed</div></div>
+    <div class="scard ${goalDone?'green':'red'}"><div class="sc-lbl">To Target</div><div class="sc-val ${goalDone?'green':'red'}">${goalDone?'Done!':'$'+(info.t-bal).toFixed(2)}</div><div class="sc-sub">${goalDone?'✓ Achieved':'Remaining'}</div></div>
+  </div>
+
+  <div class="add-section fade-in">
+    <div class="section-title">Add Trade — ${info.l}</div>
+    <div class="form-grid">
+      <div class="fg"><label>Date</label><input type="date" id="f-date" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="fg"><label>Pair</label><select id="f-pair">${PAIRS.map(p=>`<option>${p}</option>`).join('')}</select></div>
+      <div class="fg"><label>Direction</label><select id="f-dir"><option value="BUY">↑ BUY</option><option value="SELL">↓ SELL</option></select></div>
+      <div class="fg"><label>Entry</label><input type="number" id="f-entry" placeholder="2345.50" step="0.01" oninput="previewRR()"></div>
+      <div class="fg"><label>Stop Loss</label><input type="number" id="f-sl" placeholder="2340.00" step="0.01" oninput="previewRR()"></div>
+      <div class="fg"><label>Take Profit</label><input type="number" id="f-tp" placeholder="2360.00" step="0.01" oninput="previewRR()"></div>
+      <div class="fg"><label>Result</label><select id="f-result" onchange="onResultChange()"><option value="Win">✓ Win</option><option value="Loss">✗ Loss</option><option value="BE">⟳ Break Even</option><option value="Open">⏳ Open</option></select></div>
+      <div class="fg"><label>P&L ($)</label><input type="number" id="f-pnl" placeholder="+15.50 or -8.20" step="0.01" oninput="onPnlInput()"></div>
+      <div class="fg"><label>Source</label><select id="f-src">${SRCS.map(s=>`<option>${s}</option>`).join('')}</select></div>
+      <div class="fg"><label>RR Ratio</label><input type="text" id="f-rr" placeholder="1:3"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Notes</label><input type="text" id="f-notes" placeholder="ICT OB + FVG, London session..."></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" id="add-btn" onclick="submitTrade(${monthNum})">+ Save to Supabase</button>
+      <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+      <span class="rr-preview" id="rr-preview"></span>
+    </div>
+  </div>
+
+  <div class="trades-wrap fade-in">
+    <div class="tw-header">
+      <div class="tw-title">Trade Log — ${info.l}</div>
+      <span class="tw-badge">${arr.length} trades</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th>
+          <th>Result</th><th>P&L</th><th>Bal After</th><th>Src</th><th>RR</th><th>Notes</th><th></th>
+        </tr></thead>
+        <tbody>`;
+
+  if(arr.length===0){
+    html+=`<tr class="empty-row"><td colspan="14">No trades yet — add your first trade above ☝️</td></tr>`;
+  } else {
+    let runBal=info.s;
+    arr.forEach((t,i)=>{
+      runBal+=parseFloat(t.pnl||0);
+      const pnl=parseFloat(t.pnl||0);
+      const bc=t.result==='Win'?'bw':t.result==='Loss'?'bl':t.result==='BE'?'bb':'bo';
+      const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
+      html+=`<tr>
+        <td style="color:var(--text3);font-size:11px">${i+1}</td>
+        <td style="color:var(--text2)">${t.trade_date||'—'}</td>
+        <td style="font-weight:600">${t.pair}</td>
+        <td>${dir}</td>
+        <td class="entry-cell">${t.entry_price||'—'}</td>
+        <td class="entry-cell" style="color:var(--red)">${t.sl||'—'}</td>
+        <td class="entry-cell" style="color:var(--green)">${t.tp||'—'}</td>
+        <td><span class="badge ${bc}">${t.result}</span></td>
+        <td class="pnl-cell ${pnl>=0?'pnl-pos':'pnl-neg'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</td>
+        <td style="font-family:var(--mono);font-size:12px;color:${runBal>=info.s?'var(--text)':'var(--red)'}">$${runBal.toFixed(2)}</td>
+        <td><span class="src s${t.source}">${t.source}</span></td>
+        <td style="color:var(--text2);font-family:var(--mono);font-size:12px">${t.rr_ratio||'—'}</td>
+        <td style="color:var(--text2);max-width:130px;overflow:hidden;text-overflow:ellipsis" title="${t.notes||''}">${t.notes||'—'}</td>
+        <td><button class="del-btn" onclick="removeTrade(${t.id})" title="Delete">✕</button></td>
+      </tr>`;
+    });
+  }
+  html+=`</tbody></table></div></div>`;
+  document.getElementById('mainContent').innerHTML=html;
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────
+function renderOverview(){
+  const gb=globalBalance();
+  const gs=globalStats();
+  const totalProg=Math.min(100,((gb-PHASE_START)/(PHASE_GOAL-PHASE_START))*100);
+  const goalDoneGlobal=gb>=PHASE_GOAL;
+
+  let html=`
+  <div class="overall-goal fade-in">
+    <div class="og-label">Phase 1 Challenge — $100 → $500</div>
+    <div class="og-val">$${gb.toFixed(2)}</div>
+    <div class="og-sub">Target: $500 &nbsp;·&nbsp; Withdraw $250 → Phase 2 starts with $250 &nbsp;·&nbsp; <span style="color:var(--gold)">${totalProg.toFixed(1)}% complete</span></div>
+  </div>
+  <div class="prog-wrap fade-in">
+    <div class="prog-top">
+      <span class="prog-label">Phase 1 Progress · $100 → $500</span>
+      <span class="prog-pct" style="color:${goalDoneGlobal?'var(--green)':'var(--gold)'}">${goalDoneGlobal?'✓ PHASE 1 COMPLETE! Withdraw $250':totalProg.toFixed(1)+'%'}</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" style="width:${totalProg}%;background:${goalDoneGlobal?'var(--green)':'linear-gradient(90deg,var(--gold),#ffd166)'}"></div>
+    </div>
+    <div class="prog-milestones">
+      <span class="prog-m">$100</span>
+      <span class="prog-m">$200</span>
+      <span class="prog-m">$300</span>
+      <span class="prog-m">$400</span>
+      <span class="prog-m">$500 🎯</span>
+    </div>
+  </div>
+  <div class="stats-row fade-in">
+    <div class="scard gold"><div class="sc-lbl">Total Trades</div><div class="sc-val gold">${gs.total}</div></div>
+    <div class="scard green"><div class="sc-lbl">Wins</div><div class="sc-val green">${gs.wins}</div></div>
+    <div class="scard red"><div class="sc-lbl">Losses</div><div class="sc-val red">${gs.losses}</div></div>
+    <div class="scard blue"><div class="sc-lbl">Win Rate</div><div class="sc-val blue">${gs.wr}%</div></div>
+    <div class="scard purple"><div class="sc-lbl">Total P&L</div><div class="sc-val ${gs.totalPnl>=0?'green':'red'}">${gs.totalPnl>=0?'+':''}$${gs.totalPnl.toFixed(2)}</div></div>
+  </div>
+  <div class="ov-grid fade-in">
+    <div class="ov-card">
+      <div class="ov-card-title">Month-by-Month</div>`;
+
+  for(let m=0;m<MONTHS.length;m++){
+    const info=MONTHS[m];
+    const arr=tradesForMonth(m+1);
+    const bal=liveBalance(m);
+    const hasTrades=arr.length>0;
+    const pct=hasTrades?((bal-info.s)/info.s*100):null;
+    const barW=Math.min(100,((bal-PHASE_START)/(PHASE_GOAL-PHASE_START))*100);
+    const goalDone=hasTrades&&bal>=info.t;
+    html+=`<div class="bal-item">
+      <div class="bi-num">${m+1}</div>
+      <div class="bi-info">
+        <div class="bi-label">${info.l}</div>
+        <div class="bi-bar-wrap"><div class="bi-bar" style="width:${Math.max(0,barW)}%;background:${goalDone?'var(--green)':hasTrades?'var(--gold)':'var(--s3)'}"></div></div>
+      </div>
+      <div class="bi-right">
+        <div class="bi-val" style="color:${hasTrades?(goalDone?'var(--green)':'var(--text)'):'var(--text3)'}">
+          ${hasTrades?'$'+bal.toFixed(2):'$'+info.t+' target'}
+        </div>
+        ${pct!==null?`<div class="bi-pct ${pct>=0?'pct-pos':'pct-neg'}">${pct>=0?'+':''}${pct.toFixed(1)}%</div>`:'<div class="pct-none bi-pct">—</div>'}
+      </div>
+    </div>`;
+  }
+
+  html+=`</div><div class="ov-card"><div class="ov-card-title">Source Performance (TP/SR/EC/HF)</div>`;
+  SRCS.forEach(src=>{
+    const arr=allTrades.filter(t=>t.source===src);
+    const s=stats(arr);
+    const srcNames={TP:'TradingPapa',SR:'Sniper Entry',EC:'EarnwithRashid',HF:'Manual HF'};
+    if(s.total===0){
+      html+=`<div class="bal-item"><div class="bi-info"><div class="bi-label"><span class="src s${src}">${src}</span> <span style="margin-left:6px;color:var(--text2)">${srcNames[src]}</span></div></div><div class="bi-right"><div class="bi-val" style="color:var(--text3)">No trades</div></div></div>`;
+    } else {
+      html+=`<div class="bal-item">
+        <div class="bi-info">
+          <div class="bi-label"><span class="src s${src}">${src}</span> <span style="margin-left:6px;color:var(--text2)">${srcNames[src]}</span></div>
+          <div class="bi-bar-wrap"><div class="bi-bar" style="width:${s.wr}%;background:${s.wr>=60?'var(--green)':s.wr>=40?'var(--gold)':'var(--red)'}"></div></div>
+        </div>
+        <div class="bi-right">
+          <div class="bi-val">${s.wr}% WR</div>
+          <div class="bi-pct ${s.totalPnl>=0?'pct-pos':'pct-neg'}">${s.totalPnl>=0?'+':''}$${s.totalPnl.toFixed(2)}</div>
+        </div>
+      </div>`;
+    }
+  });
+  html+=`</div></div>`;
+  document.getElementById('mainContent').innerHTML=html;
+}
+
+// ── PHASE PLAN PAGE ───────────────────────────────────────
+function renderPhasePlan(){
+  const gb = globalBalance();
+  const pi = getCurrentPhaseInfo();
+  // Honda unlocked when Phase 3 complete (balance >= 5000 conceptually, but tracked as phase completion)
+  // For Phase 1 journal: unlock when gb >= 500 (Phase 1 done) as demo indicator
+  // Real unlock: Phase 3 complete = balance hits $5000
+  // We'll track by phase number
+  const hondaUnlocked = pi.phase >= 4; // Phase 3 complete means entering Phase 4
+  const phase3Progress = pi.phase === 3 ? parseFloat(pi.progress) : (pi.phase > 3 ? 100 : 0);
+
+  let html = `
+  <div class="phase-header fade-in">
+    <h2>🗺️ Hassan FX — Full Phase Plan</h2>
+    <p>$100 se $10,000 tak ka safar — 4 Phases, ~38 Months</p>
+    <div class="current-badge">Currently: ${pi.label} · ${pi.progress}% complete</div>
+  </div>`;
+
+  // Honda Card
+  html += `
+  <div class="honda-card ${hondaUnlocked?'':'locked'} fade-in">
+    <img class="honda-img" src="${HONDA_IMG}" alt="Honda CG 125" onerror="this.style.display='none'">
+    <div class="honda-info">
+      <div class="honda-title">🏍️ Honda CG 125 — Dream Reward</div>
+      <div class="honda-sub">Phase 3 complete hone pe unlock hoga — $5,000 target achieve karo!</div>
+      ${hondaUnlocked
+        ? `<div class="honda-unlocked-msg">✅ UNLOCKED! Phase 3 complete — Honda lene ka waqt aa gaya bhai! 🎉</div>`
+        : `<div class="honda-lock-msg">🔒 Locked — Phase 3 ($500 → $5,000) complete karo</div>`
+      }
+      <div class="honda-prog-wrap">
+        <div class="honda-prog-label">Phase 3 Progress: ${phase3Progress.toFixed(1)}%</div>
+        <div class="honda-prog-track">
+          <div class="honda-prog-fill" style="width:${phase3Progress}%"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // Phase cards
+  html += `<div class="phases-grid fade-in">`;
+
+  PHASE_PLAN.forEach((ph, idx) => {
+    const phaseNum = ph.num;
+    const isActive = pi.phase === phaseNum;
+    const isDone = pi.phase > phaseNum;
+    const isLocked = pi.phase < phaseNum;
+
+    const cardClass = isDone ? 'completed-phase' : isActive ? 'active-phase' : 'locked-phase';
+    const numClass = isDone ? 'pn-done' : isActive ? 'pn-active' : 'pn-locked';
+    const statusLabel = isDone ? '✓ Complete' : isActive ? '▶ Active' : '🔒 Locked';
+    const statusClass = isDone ? 'psb-done' : isActive ? 'psb-active' : 'psb-locked';
+
+    html += `
+    <div class="phase-card ${cardClass}">
+      <div class="phase-card-header">
+        <div class="phase-num ${numClass}">${phaseNum}</div>
+        <div class="phase-card-title">
+          <div class="pct-name">${ph.label} — ${ph.timeline}</div>
+          <div class="pct-range">$${ph.start} → $${ph.target}</div>
+        </div>
+        <div class="phase-status-badge ${statusClass}">${statusLabel}</div>
+      </div>
+      <div class="phase-card-body">
+        <div class="phase-months-grid">`;
+
+    ph.monthTargets.forEach((mt, mi) => {
+      html += `
+          <div class="pm-item ${isDone?'pm-done':isActive&&mi===0?'pm-current':''}">
+            <div class="pm-label">${mt.l}</div>
+            <div class="pm-range">$${mt.s} → $${mt.t}</div>
+          </div>`;
+    });
+
+    html += `</div>
+        <div class="phase-footer">
+          <div class="pf-item">💰 Withdraw: <span>$${ph.withdraw}</span></div>
+          <div class="pf-item">🏦 Backup: <span>$${ph.backup}</span></div>
+          <div class="pf-item">🛍️ Kharch: <span>$${ph.kharch}</span></div>
+          <div class="pf-item">🚀 Next Phase Capital: <span>$${ph.next}</span></div>
+          ${phaseNum===3?'<div class="pf-item">🏍️ <span>Honda CG 125 Unlock!</span></div>':''}
+          ${phaseNum===4?'<div class="pf-item">💍 <span>Shadi 2029 🎉</span></div>':''}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  html += `</div>
+
+  <div class="prog-wrap fade-in">
+    <div class="prog-top">
+      <span class="prog-label">Overall Journey · $100 → $10,000</span>
+      <span class="prog-pct" style="color:var(--gold)">${pi.label} Active</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" style="width:${Math.min(100,((gb-100)/9900)*100)}%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></div>
+    </div>
+    <div class="prog-milestones">
+      <span class="prog-m">$100</span>
+      <span class="prog-m">P1 $500</span>
+      <span class="prog-m">P2 $1K</span>
+      <span class="prog-m">P3 $5K</span>
+      <span class="prog-m">P4 $10K 🎯</span>
+    </div>
+  </div>`;
+
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+// ── FORM HELPERS ──────────────────────────────────────────
+function previewRR(){
+  const entry=parseFloat(document.getElementById('f-entry')?.value);
+  const sl=parseFloat(document.getElementById('f-sl')?.value);
+  const tp=parseFloat(document.getElementById('f-tp')?.value);
+  const el=document.getElementById('rr-preview');
+  if(!el)return;
+  if(entry&&sl&&tp&&sl!==entry){
+    const risk=Math.abs(entry-sl);
+    const reward=Math.abs(tp-entry);
+    const rr=(reward/risk).toFixed(2);
+    el.textContent='Auto RR: 1:'+rr;
+    el.style.color=parseFloat(rr)>=2?'var(--green)':'var(--gold)';
+    const rrEl=document.getElementById('f-rr');
+    if(rrEl)rrEl.value='1:'+rr;
+  } else {
+    if(el)el.textContent='';
+  }
+}
+
+function onResultChange(){
+  const r=document.getElementById('f-result').value;
+  const pnlEl=document.getElementById('f-pnl');
+  if(!pnlEl)return;
+  if(r==='BE')pnlEl.value='0';
+  pnlEl.placeholder=r==='Win'?'+15.50':r==='Loss'?'-8.20':r==='BE'?'0.00':'(open)';
+}
+
+function onPnlInput(){
+  const r=document.getElementById('f-result').value;
+  const pnl=parseFloat(document.getElementById('f-pnl').value);
+  if(!isNaN(pnl)){
+    if(r==='Win'&&pnl<0) document.getElementById('f-pnl').value=Math.abs(pnl);
+    if(r==='Loss'&&pnl>0) document.getElementById('f-pnl').value=-Math.abs(pnl);
+  }
+}
+
+function clearForm(){
+  ['f-entry','f-sl','f-tp','f-pnl','f-rr','f-notes'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.value='';
+  });
+  const rp=document.getElementById('rr-preview');
+  if(rp)rp.textContent='';
+}
+
+// ── SUBMIT ────────────────────────────────────────────────
+async function submitTrade(monthNum){
+  const pnlVal=document.getElementById('f-pnl').value;
+  if(pnlVal===''&&pnlVal!=='0'){toast('P&L amount required!','error');return;}
+
+  const btn=document.getElementById('add-btn');
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+
+  const trade={
+    month_num: monthNum,
+    trade_date: document.getElementById('f-date').value||null,
+    pair: document.getElementById('f-pair').value,
+    direction: document.getElementById('f-dir').value,
+    entry_price: parseFloat(document.getElementById('f-entry').value)||null,
+    sl: parseFloat(document.getElementById('f-sl').value)||null,
+    tp: parseFloat(document.getElementById('f-tp').value)||null,
+    result: document.getElementById('f-result').value,
+    pnl: parseFloat(pnlVal)||0,
+    source: document.getElementById('f-src').value,
+    rr_ratio: document.getElementById('f-rr').value||null,
+    notes: document.getElementById('f-notes').value||null
+  };
+
+  try {
+    const inserted=await sbInsert(trade);
+    allTrades.push(inserted[0]);
+    const newBal=liveBalance(monthNum-1);
+    toast(`✓ Saved! New balance: $${newBal.toFixed(2)}`);
+    clearForm();
+    renderPage();
+  } catch(e){
+    toast('Save failed: '+e.message,'error');
+    if(btn){btn.disabled=false;btn.textContent='+ Save to Supabase';}
+  }
+}
+
+// ── DELETE ────────────────────────────────────────────────
+async function removeTrade(id){
+  if(!confirm('Delete this trade from Supabase?'))return;
+  const btn=event.target;
+  btn.disabled=true;
+  try {
+    await sbDelete(id);
+    allTrades=allTrades.filter(t=>t.id!==id);
+    toast('Trade deleted','error');
+    renderPage();
+  } catch(e){
+    toast('Delete failed','error');
+    btn.disabled=false;
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function renderPage(){
+  updateTopbar();
+  renderTabs();
+  if(cur===-2) renderPhasePlan();
+  else if(cur===-1) renderOverview();
+  else renderMonth(cur);
+}
+
+// ── INIT ──────────────────────────────────────────────────
+(async()=>{
+  await loadAllTrades();
+  renderPage();
+})();
+</script>
+</body>
+</html>
