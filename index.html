@@ -274,11 +274,23 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const HEADERS = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
 
 // ── PHASE PLAN DATA ───────────────────────────────────────
+// ── UPDATED PLAN 2026 ─────────────────────────────────────
+// Demo: July–Dec 2026 | Real: Jan 2027 onwards
+const DEMO_PHASE = {
+  label:'Demo Phase', timeline:'July 2026 – December 2026',
+  note:'Confidence build karna. Consistent profitable weeks. Emotional hote hi screen band.'
+};
+const FTMO_CHALLENGE = {
+  label:'FTMO $25K Challenge', timeline:'June–September 2028',
+  note:'$25,000 funded account. Phase 1: 8% profit target. Verification: 5%. Fee ~€250 (~$270). Fee refund on first payout. 90% profit split.'
+};
+
 const PHASE_PLAN = [
   {
     num:1, label:'Phase 1', start:100, target:500,
-    withdraw:250, next:250, months:9, timeline:'~9 months',
+    withdraw:250, next:250, months:9, timeline:'Jan 2027 – Oct 2027',
     kharch:0, backup:250,
+    note:'$250 withdraw → backup. $250 se Phase 2 start.',
     monthTargets:[
       {l:'Month 1',s:100,t:120},{l:'Month 2',s:120,t:144},{l:'Month 3',s:144,t:173},
       {l:'Month 4',s:173,t:207},{l:'Month 5',s:207,t:249},{l:'Month 6',s:249,t:299},
@@ -287,8 +299,10 @@ const PHASE_PLAN = [
   },
   {
     num:2, label:'Phase 2', start:250, target:1000,
-    withdraw:500, next:500, months:8, timeline:'~8 months',
-    kharch:250, backup:500,
+    withdraw:500, next:500, months:8, timeline:'Oct 2027 – June 2028',
+    kharch:270, backup:500,
+    note:'$500 withdraw. Total backup $750. $250–$270 se FTMO $25K challenge lo! 🎯',
+    ftmo:true,
     monthTargets:[
       {l:'Month 1',s:250,t:300},{l:'Month 2',s:300,t:360},{l:'Month 3',s:360,t:432},
       {l:'Month 4',s:432,t:518},{l:'Month 5',s:518,t:622},{l:'Month 6',s:622,t:746},
@@ -297,8 +311,10 @@ const PHASE_PLAN = [
   },
   {
     num:3, label:'Phase 3', start:500, target:5000,
-    withdraw:2500, next:2500, months:13, timeline:'~13 months',
+    withdraw:2500, next:2500, months:13, timeline:'Sep 2028 – Oct 2029',
     kharch:500, backup:2500,
+    note:'Honda CG 125 🏍️ unlock! FTMO $25K simultaneously chal raha hoga. Phase 3 end pe FTMO $100K challenge lo.',
+    honda:true,
     monthTargets:[
       {l:'Month 1',s:500,t:600},{l:'Month 2',s:600,t:720},{l:'Month 3',s:720,t:864},
       {l:'Month 4',s:864,t:1037},{l:'Month 5',s:1037,t:1244},{l:'Month 6',s:1244,t:1493},
@@ -309,8 +325,10 @@ const PHASE_PLAN = [
   },
   {
     num:4, label:'Phase 4', start:2500, target:10000,
-    withdraw:5000, next:5000, months:8, timeline:'~8 months',
+    withdraw:5000, next:5000, months:8, timeline:'Oct 2029 – June 2030',
     kharch:2500, backup:5000,
+    note:'$5K backup. $2,500 kharch — Honda expenses etc. FTMO $25K + $100K dono chal rahe. Shadi 2029–2030 💍',
+    shadi:true,
     monthTargets:[
       {l:'Month 1',s:2500,t:3000},{l:'Month 2',s:3000,t:3600},{l:'Month 3',s:3600,t:4320},
       {l:'Month 4',s:4320,t:5184},{l:'Month 5',s:5184,t:6221},{l:'Month 6',s:6221,t:7465},
@@ -676,18 +694,37 @@ function renderOverview(){
 function renderPhasePlan(){
   const gb = globalBalance();
   const pi = getCurrentPhaseInfo();
-  // Honda unlocked when Phase 3 complete (balance >= 5000 conceptually, but tracked as phase completion)
-  // For Phase 1 journal: unlock when gb >= 500 (Phase 1 done) as demo indicator
-  // Real unlock: Phase 3 complete = balance hits $5000
-  // We'll track by phase number
-  const hondaUnlocked = pi.phase >= 4; // Phase 3 complete means entering Phase 4
+  const hondaUnlocked = pi.phase >= 4;
   const phase3Progress = pi.phase === 3 ? parseFloat(pi.progress) : (pi.phase > 3 ? 100 : 0);
 
   let html = `
   <div class="phase-header fade-in">
     <h2>🗺️ Hassan FX — Full Phase Plan</h2>
-    <p>$100 se $10,000 tak ka safar — 4 Phases, ~38 Months</p>
+    <p>$100 se $10,000 tak ka safar + FTMO $25K & $100K — ~3.5 Saal</p>
     <div class="current-badge">Currently: ${pi.label} · ${pi.progress}% complete</div>
+  </div>
+
+  <!-- DEMO PHASE CARD -->
+  <div class="phase-card fade-in" style="border-color:var(--blue);margin-bottom:16px;">
+    <div class="phase-card-header">
+      <div class="phase-num" style="background:var(--blue);color:#fff">📊</div>
+      <div class="phase-card-title">
+        <div class="pct-name">Demo Phase — Confidence Building</div>
+        <div class="pct-range" style="color:var(--blue)">July 2026 – December 2026</div>
+      </div>
+      <div class="phase-status-badge" style="background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue)">6 Months</div>
+    </div>
+    <div class="phase-card-body">
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;">
+        Strategy nahi — <strong style="color:var(--text)">confidence build karna</strong> hai. Consistent profitable weeks dekh ke self belief solid karna. Emotional hote hi screen band, rest karo. December 2026 ke baad check karo: Win rate 50%+? 3 consecutive profitable months? Tab real pe utro!
+      </div>
+      <div class="phase-footer" style="margin-top:.75rem">
+        <div class="pf-item">📅 <span>6 months practice</span></div>
+        <div class="pf-item">🎯 <span>Demo pe $100 → $500 target</span></div>
+        <div class="pf-item">📒 <span>Journal mein har trade log karo</span></div>
+        <div class="pf-item">✅ <span>Real start: January 2027</span></div>
+      </div>
+    </div>
   </div>`;
 
   // Honda Card
@@ -746,16 +783,69 @@ function renderPhasePlan(){
     });
 
     html += `</div>
+        ${ph.note?`<div style="font-size:12px;color:var(--text2);margin:10px 0;padding:8px 12px;background:var(--s3);border-radius:8px;border-left:3px solid var(--gold)">${ph.note}</div>`:''}
         <div class="phase-footer">
           <div class="pf-item">💰 Withdraw: <span>$${ph.withdraw}</span></div>
           <div class="pf-item">🏦 Backup: <span>$${ph.backup}</span></div>
           <div class="pf-item">🛍️ Kharch: <span>$${ph.kharch}</span></div>
-          <div class="pf-item">🚀 Next Phase Capital: <span>$${ph.next}</span></div>
-          ${phaseNum===3?'<div class="pf-item">🏍️ <span>Honda CG 125 Unlock!</span></div>':''}
-          ${phaseNum===4?'<div class="pf-item">💍 <span>Shadi 2029 🎉</span></div>':''}
+          <div class="pf-item">🚀 Next Capital: <span>$${ph.next}</span></div>
+          ${ph.ftmo?'<div class="pf-item" style="color:var(--blue)">🎯 <span style="color:var(--blue)">FTMO $25K Challenge lo!</span></div>':''}
+          ${ph.honda?'<div class="pf-item" style="color:var(--gold)">🏍️ <span style="color:var(--gold)">Honda CG 125 Unlock!</span></div>':''}
+          ${ph.shadi?'<div class="pf-item" style="color:var(--purple)">💍 <span style="color:var(--purple)">Shadi 2029–2030 — Amna ke saath! 🥹</span></div>':''}
         </div>
       </div>
-    </div>`;
+    </div>
+
+    ${ph.ftmo ? `
+    <!-- FTMO CHALLENGE CARD after Phase 2 -->
+    <div class="phase-card fade-in" style="border-color:var(--blue);margin-bottom:0;">
+      <div class="phase-card-header">
+        <div class="phase-num" style="background:var(--blue);color:#fff">F</div>
+        <div class="phase-card-title">
+          <div class="pct-name">FTMO $25,000 Challenge</div>
+          <div class="pct-range" style="color:var(--blue)">June – September 2028</div>
+        </div>
+        <div class="phase-status-badge" style="background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue)">${isDone||isActive?'🎯 Target':'🔒 Locked'}</div>
+      </div>
+      <div class="phase-card-body">
+        <div class="phase-months-grid">
+          <div class="pm-item"><div class="pm-label">Fee</div><div class="pm-range" style="color:var(--blue)">~€250 (~$270)</div></div>
+          <div class="pm-item"><div class="pm-label">Phase 1 Target</div><div class="pm-range">8% = $2,000</div></div>
+          <div class="pm-item"><div class="pm-label">Verification</div><div class="pm-range">5% = $1,250</div></div>
+          <div class="pm-item"><div class="pm-label">Profit Split</div><div class="pm-range" style="color:var(--green)">90% tere liye</div></div>
+          <div class="pm-item"><div class="pm-label">Fee Refund</div><div class="pm-range" style="color:var(--green)">1st payout pe wapas</div></div>
+          <div class="pm-item"><div class="pm-label">Monthly Income</div><div class="pm-range" style="color:var(--gold)">~$2,250/month</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-top:10px;padding:8px 12px;background:var(--s3);border-radius:8px;border-left:3px solid var(--blue)">
+          Pass karte hi $25K funded account + fee refund. Phase 3 ke saath simultaneously trading! Monthly ~$2,250 = ~6 lac PKR income shuru.
+        </div>
+      </div>
+    </div>` : ''}
+
+    ${ph.honda && pi.phase >= 3 ? `
+    <!-- FTMO $100K after Phase 3 -->
+    <div class="phase-card fade-in" style="border-color:var(--green);margin-bottom:0;">
+      <div class="phase-card-header">
+        <div class="phase-num" style="background:var(--green);color:#000">F</div>
+        <div class="phase-card-title">
+          <div class="pct-name">FTMO $100,000 Challenge</div>
+          <div class="pct-range" style="color:var(--green)">Phase 3 complete hone pe</div>
+        </div>
+        <div class="phase-status-badge" style="background:var(--green-dim);color:var(--green);border:1px solid var(--green)">🏆 End Game</div>
+      </div>
+      <div class="phase-card-body">
+        <div class="phase-months-grid">
+          <div class="pm-item"><div class="pm-label">Fee</div><div class="pm-range" style="color:var(--green)">~€540 (~$580)</div></div>
+          <div class="pm-item"><div class="pm-label">Profit Split</div><div class="pm-range" style="color:var(--green)">90% tere liye</div></div>
+          <div class="pm-item"><div class="pm-label">Monthly 15%</div><div class="pm-range" style="color:var(--gold)">$9,000/month</div></div>
+          <div class="pm-item"><div class="pm-label">Monthly 15% PKR</div><div class="pm-range" style="color:var(--gold)">~25 lac/month</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-top:10px;padding:8px 12px;background:var(--s3);border-radius:8px;border-left:3px solid var(--green)">
+          $25K + $100K dono simultaneously! Total monthly: ~$11,250 = ~31 lac PKR 💰 Properties, family support, luxury life — sab Amna ke saath! 🥹
+        </div>
+      </div>
+    </div>` : ''}
+`;
   });
 
   html += `</div>
@@ -771,9 +861,51 @@ function renderPhasePlan(){
     <div class="prog-milestones">
       <span class="prog-m">$100</span>
       <span class="prog-m">P1 $500</span>
-      <span class="prog-m">P2 $1K</span>
-      <span class="prog-m">P3 $5K</span>
-      <span class="prog-m">P4 $10K 🎯</span>
+      <span class="prog-m">P2 $1K + FTMO $25K 🎯</span>
+      <span class="prog-m">P3 $5K + Honda 🏍️</span>
+      <span class="prog-m">P4 $10K + Shadi 💍</span>
+    </div>
+  </div>
+
+  <!-- END GAME SUMMARY -->
+  <div class="phase-card fade-in" style="border-color:var(--gold);background:linear-gradient(135deg,#1a1200,#0e1523);">
+    <div class="phase-card-header">
+      <div class="phase-num pn-active">🏆</div>
+      <div class="phase-card-title">
+        <div class="pct-name" style="color:var(--gold)">End Game — 2029–2030</div>
+        <div class="pct-range">$10K Personal + FTMO $25K + FTMO $100K</div>
+      </div>
+    </div>
+    <div class="phase-card-body">
+      <div class="phase-months-grid">
+        <div class="pm-item"><div class="pm-label">FTMO $25K Monthly</div><div class="pm-range" style="color:var(--green)">~$2,250 | ~6 lac PKR</div></div>
+        <div class="pm-item"><div class="pm-label">FTMO $100K Monthly</div><div class="pm-range" style="color:var(--green)">~$9,000 | ~25 lac PKR</div></div>
+        <div class="pm-item"><div class="pm-label">Total Monthly</div><div class="pm-range" style="color:var(--gold);font-size:14px">~$11,250 | ~31 lac PKR 💰</div></div>
+        <div class="pm-item"><div class="pm-label">Personal Capital</div><div class="pm-range" style="color:var(--gold)">$10,000+</div></div>
+        <div class="pm-item"><div class="pm-label">Honda CG 125</div><div class="pm-range">✅ Already hai 🏍️</div></div>
+        <div class="pm-item"><div class="pm-label">Shadi</div><div class="pm-range" style="color:var(--purple)">💍 Amna ke saath 🥹</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOLDEN RULES -->
+  <div class="phase-card fade-in" style="border-color:var(--red);">
+    <div class="phase-card-header">
+      <div class="phase-num" style="background:var(--red);color:#fff">⚡</div>
+      <div class="phase-card-title">
+        <div class="pct-name">Golden Rules — Kabhi Mat Toro!</div>
+        <div class="pct-range" style="color:var(--red)">Discipline = Sab Kuch</div>
+      </div>
+    </div>
+    <div class="phase-card-body">
+      <div class="phase-months-grid">
+        <div class="pm-item" style="border-left:3px solid var(--red)"><div class="pm-label">🛑 Rule 1</div><div class="pm-range">Emotional hote hi screen band</div></div>
+        <div class="pm-item" style="border-left:3px solid var(--gold)"><div class="pm-label">📊 Rule 2</div><div class="pm-range">Max 3 trades/day</div></div>
+        <div class="pm-item" style="border-left:3px solid var(--red)"><div class="pm-label">❌ Rule 3</div><div class="pm-range">3 consecutive loss → us din band</div></div>
+        <div class="pm-item" style="border-left:3px solid var(--blue)"><div class="pm-label">🌙 Rule 4</div><div class="pm-range">No Asian session entries</div></div>
+        <div class="pm-item" style="border-left:3px solid var(--purple)"><div class="pm-label">💪 Rule 5</div><div class="pm-range">Discipline = sab kuch</div></div>
+        <div class="pm-item" style="border-left:3px solid var(--green)"><div class="pm-label">📒 Rule 6</div><div class="pm-range">Har trade journal mein log karo</div></div>
+      </div>
     </div>
   </div>`;
 
