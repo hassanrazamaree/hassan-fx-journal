@@ -1033,7 +1033,7 @@ function previewRR(){
   if(entry&&sl&&tp&&sl!==entry){
     const risk=Math.abs(entry-sl);
     const reward=Math.abs(tp-entry);
-    const rr=(reward/risk).toFixed(2);
+    const rr=Math.floor(reward/risk);
     el.textContent='Auto RR: 1:'+rr;
     el.style.color=parseFloat(rr)>=2?'var(--green)':'var(--gold)';
     const rrEl=document.getElementById('f-rr');
