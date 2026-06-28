@@ -229,6 +229,45 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
 .rule-num{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
 .rule-text{font-size:12px;color:var(--text);line-height:1.5;word-break:break-word;}
 
+/* PDF BUTTON */
+.pdf-btn{padding:8px 18px;border-radius:7px;border:1px solid var(--green);background:var(--green-dim);color:var(--green);cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;font-family:var(--sans);display:inline-flex;align-items:center;gap:6px;}
+.pdf-btn:hover{background:var(--green);color:#000;}
+
+/* PDF PRINT STYLES */
+@media print {
+  body{background:#fff!important;color:#000!important;}
+  .topbar,.month-nav,.add-section,.del-btn,.pdf-btn,.live-ticker,.pdf-section-hide{display:none!important;}
+  main{padding:0 1rem!important;max-width:100%!important;}
+  .month-hero{background:#f8f9fa!important;border:1px solid #ddd!important;break-inside:avoid;color:#000!important;}
+  .mh-month,.mh-title,.mh-sub,.mh-bal-lbl{color:#333!important;}
+  .prog-wrap{background:#f8f9fa!important;border:1px solid #ddd!important;break-inside:avoid;}
+  .prog-label,.prog-m{color:#555!important;}
+  .stats-row{break-inside:avoid;}
+  .scard{background:#f8f9fa!important;border:1px solid #ddd!important;}
+  .sc-lbl,.sc-sub{color:#555!important;}
+  .sc-val{color:#000!important;}
+  .sc-val.green{color:#16a34a!important;}
+  .sc-val.red{color:#dc2626!important;}
+  .sc-val.gold{color:#b45309!important;}
+  .sc-val.blue{color:#1d4ed8!important;}
+  .sc-val.purple{color:#7c3aed!important;}
+  .trades-wrap{break-inside:auto;}
+  thead th{background:#f0f0f0!important;color:#333!important;}
+  tbody td{color:#000!important;white-space:normal!important;word-break:break-word!important;vertical-align:top!important;padding:8px!important;}
+  .pnl-pos{color:#16a34a!important;}
+  .pnl-neg{color:#dc2626!important;}
+  .bw{background:#dcfce7!important;color:#16a34a!important;}
+  .bl{background:#fee2e2!important;color:#dc2626!important;}
+  .bb{background:#dbeafe!important;color:#1d4ed8!important;}
+  .bo{background:#fef9c3!important;color:#854d0e!important;}
+  table{font-size:11px!important;width:100%!important;}
+  .entry-cell{color:#555!important;font-size:11px!important;}
+  .src{border:1px solid #ccc!important;color:#333!important;background:#f0f0f0!important;}
+  .pdf-goal-banner{display:block!important;background:#dcfce7!important;border:1px solid #16a34a!important;border-radius:8px!important;padding:10px 14px!important;margin-bottom:12px!important;color:#16a34a!important;font-weight:600!important;font-size:13px!important;}
+  .tw-badge,.tw-title{color:#333!important;}
+  .tw-header{border-bottom:1px solid #ddd!important;}
+}
+
 @media(max-width:640px){
   .topbar{padding:0 1rem;}
   .topbar-stats .ts:nth-child(2){display:none;}
@@ -673,16 +712,39 @@ function renderMonth(monthIdx){
     </div>
   </div>
 
+  // ── Goal complete date detection ──
+  let goalCompleteDate = null;
+  let goalStartDate = null;
+  if(arr.length > 0){
+    goalStartDate = arr[0].trade_date;
+    let runCheck = info.s;
+    for(let t of arr){
+      runCheck += parseFloat(t.pnl||0);
+      if(runCheck >= info.t && !goalCompleteDate){
+        goalCompleteDate = t.trade_date;
+      }
+    }
+  }
+  const goalBannerHtml = goalDone && goalCompleteDate ? `
+    <div class="pdf-goal-banner" style="display:none;">
+      🎯 Goal Achieved! Started: ${goalStartDate||'—'} · Completed: ${goalCompleteDate} · Balance: $${bal.toFixed(2)}
+    </div>` : '';
+
+  html += `
+  ${goalBannerHtml}
   <div class="trades-wrap fade-in">
     <div class="tw-header">
       <div class="tw-title">Trade Log — ${info.l}</div>
-      <span class="tw-badge">${arr.length} trades</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="tw-badge">${arr.length} trades</span>
+        ${goalDone ? `<button class="pdf-btn" onclick="downloadPDF('phase${activePhase}_month${monthIdx+1}')">⬇ Download PDF</button>` : `<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">PDF unlocks on goal ✓</span>`}
+      </div>
     </div>
     <div class="tbl-wrap">
       <table>
         <thead><tr>
           <th>#</th><th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th>
-          <th>Result</th><th>P&L</th><th>Bal After</th><th>Src</th><th>RR</th><th>Notes</th><th></th>
+          <th>Result</th><th>P&L</th><th>Bal After</th><th>Src</th><th>RR</th><th>Notes</th><th class="pdf-section-hide"></th>
         </tr></thead>
         <tbody>`;
 
@@ -697,9 +759,9 @@ function renderMonth(monthIdx){
       const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
       html+=`<tr>
         <td style="color:var(--text3);font-size:11px">${i+1}</td>
-        <td style="color:var(--text2)">${t.trade_date||'—'}</td>
-        <td style="font-weight:600">${t.pair}</td>
-        <td>${dir}</td>
+        <td style="color:var(--text2);white-space:nowrap">${t.trade_date||'—'}</td>
+        <td style="font-weight:600;white-space:nowrap">${t.pair}</td>
+        <td style="white-space:nowrap">${dir}</td>
         <td class="entry-cell">${t.entry_price||'—'}</td>
         <td class="entry-cell" style="color:var(--red)">${t.sl||'—'}</td>
         <td class="entry-cell" style="color:var(--green)">${t.tp||'—'}</td>
@@ -707,9 +769,9 @@ function renderMonth(monthIdx){
         <td class="pnl-cell ${pnl>=0?'pnl-pos':'pnl-neg'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</td>
         <td style="font-family:var(--mono);font-size:12px;color:${runBal>=info.s?'var(--text)':'var(--red)'}">$${runBal.toFixed(2)}</td>
         <td><span class="src s${t.source}">${t.source}</span></td>
-        <td style="color:var(--text2);font-family:var(--mono);font-size:12px">${t.rr_ratio||'—'}</td>
-        <td style="color:var(--text2);max-width:130px;overflow:hidden;text-overflow:ellipsis" title="${t.notes||''}">${t.notes||'—'}</td>
-        <td><button class="del-btn" onclick="removeTrade(${t.id})">✕</button></td>
+        <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.rr_ratio||'—'}</td>
+        <td style="color:var(--text2);min-width:140px;max-width:220px;white-space:normal;word-break:break-word;line-height:1.5;font-size:12px;padding:8px 12px">${t.notes||'—'}</td>
+        <td class="pdf-section-hide"><button class="del-btn" onclick="removeTrade(${t.id})">✕</button></td>
       </tr>`;
     });
   }
@@ -1020,6 +1082,20 @@ function renderPhasePlan(){
   </div>`;
 
   document.getElementById('mainContent').innerHTML=html;
+}
+
+// ── PDF DOWNLOAD ──────────────────────────────────────────
+function downloadPDF(filename){
+  // Show hidden print-only elements
+  document.querySelectorAll('.pdf-goal-banner').forEach(el=>el.style.display='block');
+  const oldTitle = document.title;
+  document.title = 'Hassan FX — ' + filename;
+  window.print();
+  document.title = oldTitle;
+  // Hide again after print dialog
+  setTimeout(()=>{
+    document.querySelectorAll('.pdf-goal-banner').forEach(el=>el.style.display='none');
+  }, 1000);
 }
 
 // ── SWITCH PHASE ──────────────────────────────────────────
