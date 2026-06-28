@@ -914,19 +914,23 @@ function renderPhasePlan(){
       </div>`;
     }
 
-    // FTMO $25K after Phase 2
+    // FTMO $25K after Phase 2 — sirf tab unlock ho jab realBal >= 1000 (Phase 2 complete)
     if(ph.ftmo){
+      const ftmo25Unlocked = realBal >= 1000;
       html+=`
-      <div class="phase-card fade-in" style="border-color:var(--blue);margin-bottom:0;">
+      <div class="phase-card fade-in" style="border-color:${ftmo25Unlocked?'var(--blue)':'var(--border2)'};margin-bottom:0;${ftmo25Unlocked?'':'opacity:.6'}">
         <div class="phase-card-header">
-          <div class="phase-num" style="background:var(--blue);color:#fff">F</div>
+          <div class="phase-num" style="background:${ftmo25Unlocked?'var(--blue)':'var(--s3)'};color:${ftmo25Unlocked?'#fff':'var(--text3)'}">F</div>
           <div class="phase-card-title">
             <div class="pct-name">FTMO $25,000 Challenge</div>
-            <div class="pct-range" style="color:var(--blue)">June – September 2028</div>
+            <div class="pct-range" style="color:${ftmo25Unlocked?'var(--blue)':'var(--text3)'}">Phase 2 complete hone pe unlock</div>
           </div>
-          <div class="phase-status-badge" style="background:var(--blue-dim);color:var(--blue);border-color:var(--blue)">🎯 Target</div>
+          <div class="phase-status-badge" style="background:${ftmo25Unlocked?'var(--blue-dim)':'var(--s3)'};color:${ftmo25Unlocked?'var(--blue)':'var(--text3)'};border-color:${ftmo25Unlocked?'var(--blue)':'var(--border2)'}">
+            ${ftmo25Unlocked?'🎯 Unlocked':'🔒 Locked'}
+          </div>
         </div>
         <div class="phase-card-body">
+          ${ftmo25Unlocked?`
           <div class="phase-months-grid">
             <div class="pm-item"><div class="pm-label">Fee</div><div class="pm-range" style="color:var(--blue)">~€250 (~$270)</div></div>
             <div class="pm-item"><div class="pm-label">Phase 1 Target</div><div class="pm-range">10% = $2,500</div></div>
@@ -937,7 +941,10 @@ function renderPhasePlan(){
           </div>
           <div style="font-size:12px;color:var(--text2);margin-top:10px;padding:8px 12px;background:var(--s3);border-radius:8px;border-left:3px solid var(--blue)">
             Risk per trade: 0.5% = $125. Daily max 3 trades. Pass karte hi fee refund + $25K funded!
-          </div>
+          </div>`:`
+          <div style="font-size:13px;color:var(--text3);padding:12px;text-align:center;">
+            🔒 Phase 2 complete karo ($1,000 target) — tab FTMO $25K Challenge unlock hoga!
+          </div>`}
         </div>
       </div>`;
     }
@@ -1030,14 +1037,21 @@ function previewRR(){
   const tp=parseFloat(document.getElementById('f-tp')?.value);
   const el=document.getElementById('rr-preview');
   if(!el) return;
-  if(entry&&sl&&tp&&sl!==entry){
+  if(entry&&sl&&sl!==entry){
     const risk=Math.abs(entry-sl);
-    const reward=Math.abs(tp-entry);
-    const rr=Math.floor(reward/risk);
-    el.textContent='Auto RR: 1:'+rr;
-    el.style.color=parseFloat(rr)>=2?'var(--green)':'var(--gold)';
-    const rrEl=document.getElementById('f-rr');
-    if(rrEl) rrEl.value='1:'+rr;
+    const slPips=Math.round(risk*10);
+    let txt='SL: '+slPips+' pips';
+    let rr=0;
+    if(tp){
+      const reward=Math.abs(tp-entry);
+      const tpPips=Math.round(reward*10);
+      rr=Math.floor(reward/risk);
+      txt='SL: '+slPips+' pips  |  TP: '+tpPips+' pips  |  RR: 1:'+rr;
+      const rrEl=document.getElementById('f-rr');
+      if(rrEl) rrEl.value='1:'+rr;
+    }
+    el.textContent=txt;
+    el.style.color=rr>=2?'var(--green)':'var(--gold)';
   } else {
     if(el) el.textContent='';
   }
