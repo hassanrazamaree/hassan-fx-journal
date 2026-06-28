@@ -590,16 +590,31 @@ function renderDemoMonth(idx){
     </div>
   </div>
 
+  // Demo: PDF button always show if trades exist, no goal needed
+  const demoStartDate = arr.length>0 ? arr[0].trade_date : null;
+  const demoPdfBanner = arr.length>0 ? `
+    <div class="pdf-goal-banner" style="display:none;">
+      Demo Phase · ${dm.full} · Trades: ${arr.length} · Total P&L: ${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)} · Started: ${demoStartDate||'—'}
+    </div>` : '';
+
+  html += `
+  ${demoPdfBanner}
   <div class="trades-wrap fade-in">
     <div class="tw-header">
       <div class="tw-title">Trade Log — ${dm.full}</div>
-      <span class="tw-badge">${arr.length} trades</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="tw-badge">${arr.length} trades</span>
+        ${arr.length>0
+          ? `<button class="pdf-btn" onclick="downloadPDF('demo_${dm.l.toLowerCase()}')">⬇ Download PDF</button>`
+          : `<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">Add trades to unlock PDF</span>`
+        }
+      </div>
     </div>
     <div class="tbl-wrap">
       <table>
         <thead><tr>
           <th>#</th><th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th>
-          <th>Result</th><th>P&L</th><th>Src</th><th>RR</th><th>Notes</th><th></th>
+          <th>Result</th><th>P&L</th><th>Src</th><th>RR</th><th>Notes</th><th class="pdf-section-hide"></th>
         </tr></thead>
         <tbody>`;
 
@@ -612,18 +627,18 @@ function renderDemoMonth(idx){
       const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
       html+=`<tr>
         <td style="color:var(--text3);font-size:11px">${i+1}</td>
-        <td style="color:var(--text2)">${t.trade_date||'—'}</td>
-        <td style="font-weight:600">${t.pair}</td>
-        <td>${dir}</td>
+        <td style="color:var(--text2);white-space:nowrap">${t.trade_date||'—'}</td>
+        <td style="font-weight:600;white-space:nowrap">${t.pair}</td>
+        <td style="white-space:nowrap">${dir}</td>
         <td class="entry-cell">${t.entry_price||'—'}</td>
         <td class="entry-cell" style="color:var(--red)">${t.sl||'—'}</td>
         <td class="entry-cell" style="color:var(--green)">${t.tp||'—'}</td>
         <td><span class="badge ${bc}">${t.result}</span></td>
         <td class="pnl-cell ${pnl>=0?'pnl-pos':'pnl-neg'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</td>
         <td><span class="src s${t.source}">${t.source}</span></td>
-        <td style="color:var(--text2);font-family:var(--mono);font-size:12px">${t.rr_ratio||'—'}</td>
-        <td style="color:var(--text2);max-width:130px;overflow:hidden;text-overflow:ellipsis" title="${t.notes||''}">${t.notes||'—'}</td>
-        <td><button class="del-btn" onclick="removeTrade(${t.id})">✕</button></td>
+        <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.rr_ratio||'—'}</td>
+        <td style="color:var(--text2);min-width:140px;max-width:220px;white-space:normal;word-break:break-word;line-height:1.5;font-size:12px;padding:8px 12px">${t.notes||'—'}</td>
+        <td class="pdf-section-hide"><button class="del-btn" onclick="removeTrade(${t.id})">✕</button></td>
       </tr>`;
     });
   }
