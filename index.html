@@ -592,10 +592,12 @@ function renderDemoMonth(idx){
 
   // Demo: PDF button always show if trades exist, no goal needed
   const demoStartDate = arr.length>0 ? arr[0].trade_date : null;
-  const demoPdfBanner = arr.length>0 ? `
-    <div class="pdf-goal-banner" style="display:none;">
-      Demo Phase · ${dm.full} · Trades: ${arr.length} · Total P&L: ${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)} · Started: ${demoStartDate||'—'}
-    </div>` : '';
+  const demoPdfBanner = arr.length>0
+    ? '<div class="pdf-goal-banner" style="display:none;">Demo Phase · '+dm.full+' · Trades: '+arr.length+' · Total P&L: '+(totalPnl>=0?'+':'')+'$'+totalPnl.toFixed(2)+' · Started: '+(demoStartDate||'—')+'</div>'
+    : '';
+  const demoPdfBtn = arr.length>0
+    ? '<button class="pdf-btn" onclick="downloadPDF(\'demo_'+dm.l.toLowerCase()+'\')">⬇ Download PDF</button>'
+    : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">Add trades to unlock PDF</span>';
 
   html += `
   ${demoPdfBanner}
@@ -604,10 +606,7 @@ function renderDemoMonth(idx){
       <div class="tw-title">Trade Log — ${dm.full}</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <span class="tw-badge">${arr.length} trades</span>
-        ${arr.length>0
-          ? `<button class="pdf-btn" onclick="downloadPDF('demo_${dm.l.toLowerCase()}')">⬇ Download PDF</button>`
-          : `<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">Add trades to unlock PDF</span>`
-        }
+        ${demoPdfBtn}
       </div>
     </div>
     <div class="tbl-wrap">
@@ -740,10 +739,9 @@ function renderMonth(monthIdx){
       }
     }
   }
-  const goalBannerHtml = goalDone && goalCompleteDate ? `
-    <div class="pdf-goal-banner" style="display:none;">
-      🎯 Goal Achieved! Started: ${goalStartDate||'—'} · Completed: ${goalCompleteDate} · Balance: $${bal.toFixed(2)}
-    </div>` : '';
+  const goalBannerHtml = goalDone && goalCompleteDate
+    ? '<div class="pdf-goal-banner" style="display:none;">Goal Achieved! Started: '+(goalStartDate||'—')+' · Completed: '+goalCompleteDate+' · Balance: $'+bal.toFixed(2)+'</div>'
+    : '';
 
   html += `
   ${goalBannerHtml}
@@ -752,7 +750,7 @@ function renderMonth(monthIdx){
       <div class="tw-title">Trade Log — ${info.l}</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <span class="tw-badge">${arr.length} trades</span>
-        ${goalDone ? `<button class="pdf-btn" onclick="downloadPDF('phase${activePhase}_month${monthIdx+1}')">⬇ Download PDF</button>` : `<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">PDF unlocks on goal ✓</span>`}
+        ${goalDone ? '<button class="pdf-btn" onclick="downloadPDF(\'phase'+activePhase+'_month'+(monthIdx+1)+'\')">⬇ Download PDF</button>' : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">PDF unlocks on goal ✓</span>'}
       </div>
     </div>
     <div class="tbl-wrap">
