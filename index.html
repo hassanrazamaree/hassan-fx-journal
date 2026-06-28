@@ -588,7 +588,7 @@ function renderDemoMonth(idx){
       <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
       <span class="rr-preview" id="rr-preview"></span>
     </div>
-  </div>
+  </div>`;
 
   // Demo: PDF button always show if trades exist, no goal needed
   const demoStartDate = arr.length>0 ? arr[0].trade_date : null;
@@ -599,16 +599,9 @@ function renderDemoMonth(idx){
     ? '<button class="pdf-btn" onclick="downloadPDF(\'demo_'+dm.l.toLowerCase()+'\')">⬇ Download PDF</button>'
     : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">Add trades to unlock PDF</span>';
 
+  html += demoPdfBanner;
+  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+dm.full+'</div><div style="display:flex;align-items:center;gap:8px;"><span class="tw-badge">'+arr.length+' trades</span>'+demoPdfBtn+'</div></div>';
   html += `
-  ${demoPdfBanner}
-  <div class="trades-wrap fade-in">
-    <div class="tw-header">
-      <div class="tw-title">Trade Log — ${dm.full}</div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="tw-badge">${arr.length} trades</span>
-        ${demoPdfBtn}
-      </div>
-    </div>
     <div class="tbl-wrap">
       <table>
         <thead><tr>
@@ -743,16 +736,8 @@ function renderMonth(monthIdx){
     ? '<div class="pdf-goal-banner" style="display:none;">Goal Achieved! Started: '+(goalStartDate||'—')+' · Completed: '+goalCompleteDate+' · Balance: $'+bal.toFixed(2)+'</div>'
     : '';
 
-  html += `
-  ${goalBannerHtml}
-  <div class="trades-wrap fade-in">
-    <div class="tw-header">
-      <div class="tw-title">Trade Log — ${info.l}</div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="tw-badge">${arr.length} trades</span>
-        ${goalDone ? '<button class="pdf-btn" onclick="downloadPDF(\'phase'+activePhase+'_month'+(monthIdx+1)+'\')">⬇ Download PDF</button>' : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">PDF unlocks on goal ✓</span>'}
-      </div>
-    </div>
+  html += goalBannerHtml;
+  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+info.l+'</div><div style="display:flex;align-items:center;gap:8px;"><span class="tw-badge">'+arr.length+' trades</span>'+(goalDone ? '<button class="pdf-btn" onclick="downloadPDF(\'phase'+activePhase+'_month'+(monthIdx+1)+'\')">⬇ Download PDF</button>' : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">PDF unlocks on goal ✓</span>')+'</div></div>';
     <div class="tbl-wrap">
       <table>
         <thead><tr>
