@@ -44,6 +44,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .mtab.goal-done.active{background:var(--green);color:#000!important;}
 .mtab.phase-tab{border-color:var(--purple);color:var(--purple);}
 .mtab.phase-tab.active{background:var(--purple);color:#fff;}
+.mtab.demo-tab{border-color:var(--blue);color:var(--blue);}
+.mtab.demo-tab.active{background:var(--blue);color:#fff;}
 
 main{padding:1.5rem;max-width:1080px;margin:0 auto;}
 
@@ -136,6 +138,7 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
 .pnl-neg{color:var(--red);}
 .entry-cell{font-family:var(--mono);font-size:12px;color:var(--text2);}
 
+/* OVERVIEW */
 .ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;}
 @media(max-width:600px){.ov-grid{grid-template-columns:1fr;}}
 .ov-card{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:1.25rem;}
@@ -158,57 +161,42 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
 .og-val{font-size:40px;font-weight:700;font-family:var(--mono);color:var(--gold);}
 .og-sub{font-size:13px;color:var(--text2);margin-top:.5rem;}
 
-.loading-overlay{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--text3);gap:10px;font-size:13px;}
-.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:.75rem 1.25rem;font-size:13px;font-weight:500;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px;max-width:320px;}
-.toast.show{transform:translateY(0);opacity:1;}
-.toast.success{border-color:var(--green);}
-.toast.error{border-color:var(--red);}
-
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.fade-in{animation:fadeIn .25s ease;}
-
-/* ── PHASE PLAN STYLES ── */
-.phase-header{background:linear-gradient(135deg,#1a1040,#0e1523);border:1px solid var(--purple);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;text-align:center;}
-.phase-header h2{font-size:22px;font-weight:700;color:var(--purple);margin-bottom:.4rem;}
+/* PHASE PLAN */
+.phase-header{background:linear-gradient(135deg,var(--s2),var(--s3));border:1px solid var(--border2);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;text-align:center;}
+.phase-header h2{font-size:20px;font-weight:700;color:var(--gold);margin-bottom:.4rem;}
 .phase-header p{font-size:13px;color:var(--text2);}
-.phase-header .current-badge{display:inline-block;background:var(--gold);color:#000;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-top:.6rem;}
-
-.phases-grid{display:flex;flex-direction:column;gap:16px;margin-bottom:1.25rem;}
+.current-badge{display:inline-block;margin-top:.75rem;background:var(--gold-dim);border:1px solid var(--gold);border-radius:20px;padding:4px 14px;font-size:12px;color:var(--gold);font-weight:600;}
+.phases-grid{display:flex;flex-direction:column;gap:14px;margin-bottom:1.25rem;}
 .phase-card{background:var(--s2);border:1px solid var(--border2);border-radius:14px;overflow:hidden;transition:border-color .2s;}
 .phase-card.active-phase{border-color:var(--gold);}
 .phase-card.completed-phase{border-color:var(--green);}
-.phase-card.locked-phase{opacity:.55;}
-
-.phase-card-header{display:flex;align-items:center;gap:14px;padding:1.1rem 1.25rem;border-bottom:1px solid var(--border);}
-.phase-num{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;}
-.pn-active{background:var(--gold);color:#000;}
+.phase-card.locked-phase{opacity:.6;}
+.phase-card-header{display:flex;align-items:center;gap:12px;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+.phase-num{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;}
 .pn-done{background:var(--green);color:#000;}
+.pn-active{background:var(--gold);color:#000;}
 .pn-locked{background:var(--s3);color:var(--text3);}
 .phase-card-title{flex:1;}
-.pct-name{font-size:15px;font-weight:700;}
-.pct-range{font-size:12px;color:var(--text2);margin-top:2px;font-family:var(--mono);}
-.phase-status-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;}
-.psb-active{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold);}
-.psb-done{background:var(--green-dim);color:var(--green);border:1px solid var(--green);}
-.psb-locked{background:var(--s3);color:var(--text3);border:1px solid var(--border2);}
-
-.phase-card-body{padding:1.1rem 1.25rem;}
-.phase-months-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:1rem;}
+.pct-name{font-size:14px;font-weight:600;color:var(--text);}
+.pct-range{font-size:12px;color:var(--text2);margin-top:2px;}
+.phase-status-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:all .2s;}
+.psb-done{background:var(--green-dim);color:var(--green);border-color:var(--green);}
+.psb-active{background:var(--gold-dim);color:var(--gold);border-color:var(--gold);}
+.psb-locked{background:var(--s3);color:var(--text3);}
+.psb-active:hover{background:var(--gold);color:#000;}
+.phase-card-body{padding:1rem 1.25rem;}
+.phase-months-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:.75rem;}
 .pm-item{background:var(--s3);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;}
 .pm-label{font-size:11px;color:var(--text2);}
 .pm-range{font-size:12px;font-weight:600;font-family:var(--mono);color:var(--text);}
 .pm-done{border-left:3px solid var(--green);}
 .pm-current{border-left:3px solid var(--gold);}
-
 .phase-footer{display:flex;gap:12px;flex-wrap:wrap;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border);}
 .pf-item{font-size:11px;color:var(--text3);}
 .pf-item span{color:var(--text2);font-weight:600;}
 
-/* Honda unlock card */
-.honda-card{background:linear-gradient(135deg,#1a1200,#0e1523);border:2px solid var(--gold);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;display:flex;gap:1.5rem;align-items:center;}
+/* HONDA */
+.honda-card{background:linear-gradient(135deg,#1a1200,#0e1523);border:2px solid var(--gold);border-radius:14px;padding:1.5rem;margin-bottom:14px;display:flex;gap:1.5rem;align-items:center;}
 .honda-card.locked{border-color:var(--border2);filter:grayscale(1);opacity:.5;}
 .honda-img{width:200px;height:120px;object-fit:contain;flex-shrink:0;}
 .honda-info{flex:1;}
@@ -220,6 +208,26 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
 .honda-prog-label{font-size:11px;color:var(--text3);margin-bottom:4px;}
 .honda-prog-track{background:var(--s3);border-radius:6px;height:8px;overflow:hidden;}
 .honda-prog-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s;}
+
+/* LOADING */
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--text3);gap:10px;font-size:13px;}
+.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:.75rem 1.25rem;font-size:13px;font-weight:500;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px;max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:var(--green);}
+.toast.error{border-color:var(--red);}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeIn .25s ease;}
+
+/* GOLDEN RULES FIX */
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:.75rem;}
+.rule-item{background:var(--s3);border-radius:8px;padding:10px 12px;}
+.rule-num{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.rule-text{font-size:12px;color:var(--text);line-height:1.5;word-break:break-word;}
 
 @media(max-width:640px){
   .topbar{padding:0 1rem;}
@@ -241,7 +249,7 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
     <div class="logo-icon">H</div>
     <div>
       <div class="logo-text">Hassan FX</div>
-      <div class="logo-sub" id="topbar-phase-label">Phase 1 · $100 → $500 · 9 Months</div>
+      <div class="logo-sub" id="topbar-phase-label">Demo Phase · July–December 2026</div>
     </div>
   </div>
   <div class="topbar-stats">
@@ -250,7 +258,7 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
       <div class="ts-lbl">Supabase</div>
     </div>
     <div class="ts">
-      <div class="ts-val" id="tb-balance">$100.00</div>
+      <div class="ts-val" id="tb-balance">$0.00</div>
       <div class="ts-lbl">Live Balance</div>
     </div>
     <div class="ts">
@@ -273,18 +281,17 @@ const SB_URL = 'https://idkfnshmbmajkoxixryw.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlka2Zuc2htYm1hamtveGl4cnl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MzYzMTQsImV4cCI6MjA5ODExMjMxNH0.pQqecn7bWN8Pse2mG8hR01HT-2Itb8HSO0y1Z8M5SY0';
 const HEADERS = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
 
-// ── PHASE PLAN DATA ───────────────────────────────────────
-// ── UPDATED PLAN 2026 ─────────────────────────────────────
-// Demo: July–Dec 2026 | Real: Jan 2027 onwards
-const DEMO_PHASE = {
-  label:'Demo Phase', timeline:'July 2026 – December 2026',
-  note:'Confidence build karna. Consistent profitable weeks. Emotional hote hi screen band.'
-};
-const FTMO_CHALLENGE = {
-  label:'FTMO $25K Challenge', timeline:'June–September 2028',
-  note:'$25,000 funded account. Phase 1: 8% profit target. Verification: 5%. Fee ~€250 (~$270). Fee refund on first payout. 90% profit split.'
-};
+// ── DEMO MONTHS ───────────────────────────────────────────
+const DEMO_MONTHS = [
+  {l:'July',    full:'July 2026',    dbKey:'demo_1'},
+  {l:'August',  full:'August 2026',  dbKey:'demo_2'},
+  {l:'September',full:'September 2026',dbKey:'demo_3'},
+  {l:'October', full:'October 2026', dbKey:'demo_4'},
+  {l:'November',full:'November 2026',dbKey:'demo_5'},
+  {l:'December',full:'December 2026',dbKey:'demo_6'},
+];
 
+// ── PHASE PLAN ────────────────────────────────────────────
 const PHASE_PLAN = [
   {
     num:1, label:'Phase 1', start:100, target:500,
@@ -313,7 +320,7 @@ const PHASE_PLAN = [
     num:3, label:'Phase 3', start:500, target:5000,
     withdraw:2500, next:2500, months:13, timeline:'Sep 2028 – Oct 2029',
     kharch:500, backup:2500,
-    note:'Honda CG 125 🏍️ unlock! FTMO $25K simultaneously chal raha hoga. Phase 3 end pe FTMO $100K challenge lo.',
+    note:'FTMO $25K simultaneously chal raha hoga. Phase 3 end pe FTMO $100K challenge lo.',
     honda:true,
     monthTargets:[
       {l:'Month 1',s:500,t:600},{l:'Month 2',s:600,t:720},{l:'Month 3',s:720,t:864},
@@ -327,7 +334,7 @@ const PHASE_PLAN = [
     num:4, label:'Phase 4', start:2500, target:10000,
     withdraw:5000, next:5000, months:8, timeline:'Oct 2029 – June 2030',
     kharch:2500, backup:5000,
-    note:'$5K backup. $2,500 kharch — Honda expenses etc. FTMO $25K + $100K dono chal rahe. Shadi 2029–2030 💍',
+    note:'$5K backup. $2,500 kharch. FTMO $25K + $100K dono chal rahe. Shadi 2029–2030 💍',
     shadi:true,
     monthTargets:[
       {l:'Month 1',s:2500,t:3000},{l:'Month 2',s:3000,t:3600},{l:'Month 3',s:3600,t:4320},
@@ -337,74 +344,80 @@ const PHASE_PLAN = [
   }
 ];
 
-// Phase 1 months for journal tabs
-const MONTHS = PHASE_PLAN[0].monthTargets;
 const PAIRS=['XAUUSD','EURUSD','GBPUSD','USDJPY','USDCHF','AUDUSD','USDCAD','NZDUSD','GBPJPY','EURJPY','XAGUSD'];
 const SRCS=['TP','SR','EC','HF'];
-const HONDA_IMG = 'https://graficsea.com/wp-content/uploads/2022/02/Honda-CG-125-Euro-2-Motorcycle.jpg';
+const HONDA_IMG='https://graficsea.com/wp-content/uploads/2022/02/Honda-CG-125-Euro-2-Motorcycle.jpg';
 
+// ── STATE ─────────────────────────────────────────────────
+// activePhase: 0=demo, 1-4=phase num
+// cur: -2=phase plan, -1=overview, 0..N=month index
 let allTrades = [];
-let cur = 0; // 0-8 = month tabs, -1 = overview, -2 = phase plan
-let loading = false;
+let activePhase = 0; // 0 = demo
+let cur = 0;
 
-// ── SUPABASE API ──────────────────────────────────────────
+function getActivePhasemonths(){
+  if(activePhase === 0) return DEMO_MONTHS.map((d,i)=>({l:d.l, full:d.full, s:null, t:null, isDemo:true, idx:i}));
+  return PHASE_PLAN[activePhase-1].monthTargets.map((m,i)=>({...m, isDemo:false, idx:i}));
+}
+
+function getMonthDbNum(monthIdx){
+  // Demo: month_num = -1 to -6 (demo_1..demo_6)
+  if(activePhase===0) return -(monthIdx+1);
+  // Real phases: month_num = phase*100 + monthIdx+1
+  return activePhase*100 + monthIdx+1;
+}
+
+// ── SUPABASE ──────────────────────────────────────────────
 async function sbFetch(){
-  const res = await fetch(`${SB_URL}/rest/v1/journal_trades?select=*&order=created_at.asc`, {headers:HEADERS});
+  const res=await fetch(`${SB_URL}/rest/v1/journal_trades?select=*&order=created_at.asc`,{headers:HEADERS});
   if(!res.ok) throw new Error('Fetch failed: '+res.status);
   return await res.json();
 }
-
 async function sbInsert(trade){
-  const res = await fetch(`${SB_URL}/rest/v1/journal_trades`, {
-    method:'POST',
-    headers:{...HEADERS,'Prefer':'return=representation'},
-    body: JSON.stringify(trade)
+  const res=await fetch(`${SB_URL}/rest/v1/journal_trades`,{
+    method:'POST',headers:{...HEADERS,'Prefer':'return=representation'},
+    body:JSON.stringify(trade)
   });
   if(!res.ok){const e=await res.text();throw new Error(e);}
   return await res.json();
 }
-
 async function sbDelete(id){
-  const res = await fetch(`${SB_URL}/rest/v1/journal_trades?id=eq.${id}`, {
-    method:'DELETE',
-    headers:HEADERS
-  });
+  const res=await fetch(`${SB_URL}/rest/v1/journal_trades?id=eq.${id}`,{method:'DELETE',headers:HEADERS});
   if(!res.ok) throw new Error('Delete failed');
 }
-
 async function loadAllTrades(){
   setSyncStatus('loading');
-  try {
-    allTrades = await sbFetch();
-    setSyncStatus('ok');
-  } catch(e) {
-    setSyncStatus('err');
-    toast('Supabase connection error: '+e.message,'error');
-    allTrades = [];
-  }
+  try{allTrades=await sbFetch();setSyncStatus('ok');}
+  catch(e){setSyncStatus('err');toast('Supabase error: '+e.message,'error');allTrades=[];}
 }
-
-function setSyncStatus(state){
-  const el = document.getElementById('tb-sync');
-  if(state==='ok') el.innerHTML='<span class="sync-dot sync-ok"></span>Connected';
-  else if(state==='err') el.innerHTML='<span class="sync-dot sync-err"></span>Error';
+function setSyncStatus(s){
+  const el=document.getElementById('tb-sync');
+  if(s==='ok') el.innerHTML='<span class="sync-dot sync-ok"></span>Connected';
+  else if(s==='err') el.innerHTML='<span class="sync-dot sync-err"></span>Error';
   else el.innerHTML='<span class="sync-dot sync-loading"></span>Syncing...';
 }
 
 // ── DATA HELPERS ──────────────────────────────────────────
-function tradesForMonth(m){ return allTrades.filter(t=>t.month_num===m); }
+function tradesForMonthNum(num){ return allTrades.filter(t=>t.month_num===num); }
 
-function liveBalance(m){
-  // m = 0-indexed month index
-  return MONTHS[m].s + tradesForMonth(m+1).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+function demoBalance(monthIdx){
+  const num=getMonthDbNum(monthIdx);
+  return tradesForMonthNum(num).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
 }
 
-function globalBalance(){
-  return 100 + allTrades.reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+function realBalance(phaseIdx, monthIdx){
+  const num=getMonthDbNum(monthIdx);
+  const s=PHASE_PLAN[phaseIdx].monthTargets[monthIdx].s;
+  return s + tradesForMonthNum(num).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
 }
 
-const PHASE_GOAL = 500;
-const PHASE_START = 100;
+function globalDemoBalance(){
+  return allTrades.filter(t=>t.month_num<0).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+}
+
+function globalRealBalance(){
+  return 100 + allTrades.filter(t=>t.month_num>0).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+}
 
 function stats(arr){
   const closed=arr.filter(t=>t.result!=='Open');
@@ -414,17 +427,6 @@ function stats(arr){
   const totalPnl=arr.reduce((a,t)=>a+parseFloat(t.pnl||0),0);
   const wr=closed.length?Math.round(wins.length/closed.length*100):0;
   return{total:arr.length,closed:closed.length,wins:wins.length,losses:losses.length,bes:bes.length,totalPnl,wr};
-}
-
-function globalStats(){ return stats(allTrades); }
-
-// ── CURRENT PHASE DETECTION ───────────────────────────────
-function getCurrentPhaseInfo(){
-  const gb = globalBalance();
-  if(gb < 500) return {phase:1, label:'Phase 1', progress:((gb-100)/400*100).toFixed(1)};
-  if(gb < 1000) return {phase:2, label:'Phase 2', progress:((gb-250)/750*100).toFixed(1)};
-  if(gb < 5000) return {phase:3, label:'Phase 3', progress:((gb-500)/4500*100).toFixed(1)};
-  return {phase:4, label:'Phase 4', progress:((gb-2500)/7500*100).toFixed(1)};
 }
 
 // ── TOAST ─────────────────────────────────────────────────
@@ -437,14 +439,16 @@ function toast(msg,type='success'){
 
 // ── TOPBAR ────────────────────────────────────────────────
 function updateTopbar(){
-  const gb=globalBalance();
-  const gs=globalStats();
-  const pi=getCurrentPhaseInfo();
-  document.getElementById('tb-balance').textContent='$'+gb.toFixed(2);
-  document.getElementById('tb-balance').style.color=gb>=100?'var(--gold)':'var(--red)';
+  const isDemo=activePhase===0;
+  const bal=isDemo?globalDemoBalance():globalRealBalance();
+  const allPhTrades=isDemo?allTrades.filter(t=>t.month_num<0):allTrades.filter(t=>t.month_num>0);
+  const gs=stats(allPhTrades);
+  const phLabel=isDemo?'Demo Phase · July–December 2026':`Phase ${activePhase} · ${PHASE_PLAN[activePhase-1].timeline}`;
+  document.getElementById('tb-balance').textContent='$'+bal.toFixed(2);
+  document.getElementById('tb-balance').style.color=bal>=0?'var(--gold)':'var(--red)';
   document.getElementById('tb-wr').textContent=gs.closed>0?gs.wr+'%':'—';
   document.getElementById('tb-trades').textContent=gs.total;
-  document.getElementById('topbar-phase-label').textContent=pi.label+' · Running';
+  document.getElementById('topbar-phase-label').textContent=phLabel;
 }
 
 // ── TABS ──────────────────────────────────────────────────
@@ -452,60 +456,170 @@ function renderTabs(){
   const nav=document.getElementById('monthNav');
   nav.innerHTML='';
 
-  // Overview tab
+  // Overview
   const ov=document.createElement('button');
   ov.className='mtab'+(cur===-1?' active':'');
   ov.textContent='Overview';
   ov.onclick=()=>{cur=-1;renderPage();};
   nav.appendChild(ov);
 
-  // Phase Plan tab
+  // Phase Plan
   const pp=document.createElement('button');
   pp.className='mtab phase-tab'+(cur===-2?' active':'');
   pp.textContent='🗺️ Phase Plan';
   pp.onclick=()=>{cur=-2;renderPage();};
   nav.appendChild(pp);
 
-  // Month tabs (only 9 months = Phase 1)
-  MONTHS.forEach((m,i)=>{
-    const arr=tradesForMonth(i+1);
-    const bal=liveBalance(i);
-    const done=arr.length>0&&bal>=m.t;
+  // Month tabs based on activePhase
+  const months=getActivePhasemonths();
+  months.forEach((m,i)=>{
+    const num=activePhase===0?-(i+1):activePhase*100+i+1;
+    const arr=tradesForMonthNum(num);
+    const hasTrades=arr.length>0;
     const btn=document.createElement('button');
-    btn.className='mtab'+(cur===i?' active':'')+(arr.length>0?' has-data':'')+(done?' goal-done':'');
+    let doneClass='';
+    if(!m.isDemo && hasTrades){
+      const bal=realBalance(activePhase-1,i);
+      if(bal>=m.t) doneClass=' goal-done';
+    }
+    const isDemo=m.isDemo;
+    btn.className='mtab'+(isDemo?' demo-tab':'')+(cur===i?' active':'')+(hasTrades?' has-data':'')+doneClass;
     btn.textContent=m.l;
     btn.onclick=()=>{cur=i;renderPage();};
     nav.appendChild(btn);
   });
 }
 
-// ── MONTH VIEW ────────────────────────────────────────────
-function renderMonth(m){
-  const info=MONTHS[m];
-  const monthNum=m+1;
-  const arr=tradesForMonth(monthNum);
+// ── DEMO MONTH VIEW ───────────────────────────────────────
+function renderDemoMonth(idx){
+  const dm=DEMO_MONTHS[idx];
+  const num=-(idx+1);
+  const arr=tradesForMonthNum(num);
   const st=stats(arr);
-  const bal=liveBalance(m);
+  const totalPnl=arr.reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+  const lastTrade=arr.length>0?arr[arr.length-1]:null;
+
+  const tickerHtml=lastTrade?`
+    <div class="live-ticker fade-in">
+      <div class="lt-dot"></div>
+      <div class="lt-text">Last: <span>${lastTrade.pair}</span> ${lastTrade.result==='Win'?'✓ WIN':'✕ LOSS'} &nbsp;·&nbsp; PnL: <span class="${parseFloat(lastTrade.pnl)>=0?'pnl-pos':'pnl-neg'}">${parseFloat(lastTrade.pnl)>=0?'+':''}$${parseFloat(lastTrade.pnl).toFixed(2)}</span></div>
+    </div>`:'';
+
+  let html=`
+  <div class="month-hero fade-in">
+    <div>
+      <div class="mh-title">Demo Phase — Practice Mode</div>
+      <div class="mh-month">${dm.full}</div>
+      <div class="mh-sub">Demo account · Strategy practice · Confidence building</div>
+    </div>
+    <div class="mh-balance">
+      <div class="mh-bal-lbl">Month P&L</div>
+      <div class="mh-bal-val" style="color:${totalPnl>=0?'var(--green)':'var(--red)'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)}</div>
+      <div class="mh-bal-delta" style="color:var(--text2)">${arr.length} trades logged</div>
+    </div>
+  </div>
+
+  ${tickerHtml}
+
+  <div class="stats-row fade-in">
+    <div class="scard blue"><div class="sc-lbl">Trades</div><div class="sc-val blue">${st.total}</div><div class="sc-sub">${st.closed} closed</div></div>
+    <div class="scard green"><div class="sc-lbl">Wins</div><div class="sc-val green">${st.wins}</div></div>
+    <div class="scard red"><div class="sc-lbl">Losses</div><div class="sc-val red">${st.losses}</div></div>
+    <div class="scard gold"><div class="sc-lbl">Win Rate</div><div class="sc-val gold">${st.wr}%</div></div>
+    <div class="scard ${totalPnl>=0?'green':'red'}"><div class="sc-lbl">Month P&L</div><div class="sc-val ${totalPnl>=0?'green':'red'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)}</div></div>
+  </div>
+
+  <div class="add-section fade-in">
+    <div class="section-title">Add Demo Trade — ${dm.full}</div>
+    <div class="form-grid">
+      <div class="fg"><label>Date</label><input type="date" id="f-date" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="fg"><label>Pair</label><select id="f-pair">${PAIRS.map(p=>`<option>${p}</option>`).join('')}</select></div>
+      <div class="fg"><label>Direction</label><select id="f-dir"><option value="BUY">↑ BUY</option><option value="SELL">↓ SELL</option></select></div>
+      <div class="fg"><label>Entry</label><input type="number" id="f-entry" placeholder="2345.50" step="0.01" oninput="previewRR()"></div>
+      <div class="fg"><label>Stop Loss</label><input type="number" id="f-sl" placeholder="2340.00" step="0.01" oninput="previewRR()"></div>
+      <div class="fg"><label>Take Profit</label><input type="number" id="f-tp" placeholder="2360.00" step="0.01" oninput="previewRR()"></div>
+      <div class="fg"><label>Result</label><select id="f-result" onchange="onResultChange()"><option value="Win">✓ Win</option><option value="Loss">✗ Loss</option><option value="BE">⟳ Break Even</option><option value="Open">⏳ Open</option></select></div>
+      <div class="fg"><label>P&L ($)</label><input type="number" id="f-pnl" placeholder="+15.50 or -8.20" step="0.01" oninput="onPnlInput()"></div>
+      <div class="fg"><label>Source</label><select id="f-src">${SRCS.map(s=>`<option>${s}</option>`).join('')}</select></div>
+      <div class="fg"><label>RR Ratio</label><input type="text" id="f-rr" placeholder="1:3"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Notes</label><input type="text" id="f-notes" placeholder="ICT OB + FVG, London session..."></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" id="add-btn" onclick="submitTrade(${num})">+ Save Demo Trade</button>
+      <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+      <span class="rr-preview" id="rr-preview"></span>
+    </div>
+  </div>
+
+  <div class="trades-wrap fade-in">
+    <div class="tw-header">
+      <div class="tw-title">Trade Log — ${dm.full}</div>
+      <span class="tw-badge">${arr.length} trades</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th>
+          <th>Result</th><th>P&L</th><th>Src</th><th>RR</th><th>Notes</th><th></th>
+        </tr></thead>
+        <tbody>`;
+
+  if(arr.length===0){
+    html+=`<tr class="empty-row"><td colspan="13">No demo trades yet — add your first trade above ☝️</td></tr>`;
+  } else {
+    arr.forEach((t,i)=>{
+      const pnl=parseFloat(t.pnl||0);
+      const bc=t.result==='Win'?'bw':t.result==='Loss'?'bl':t.result==='BE'?'bb':'bo';
+      const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
+      html+=`<tr>
+        <td style="color:var(--text3);font-size:11px">${i+1}</td>
+        <td style="color:var(--text2)">${t.trade_date||'—'}</td>
+        <td style="font-weight:600">${t.pair}</td>
+        <td>${dir}</td>
+        <td class="entry-cell">${t.entry_price||'—'}</td>
+        <td class="entry-cell" style="color:var(--red)">${t.sl||'—'}</td>
+        <td class="entry-cell" style="color:var(--green)">${t.tp||'—'}</td>
+        <td><span class="badge ${bc}">${t.result}</span></td>
+        <td class="pnl-cell ${pnl>=0?'pnl-pos':'pnl-neg'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</td>
+        <td><span class="src s${t.source}">${t.source}</span></td>
+        <td style="color:var(--text2);font-family:var(--mono);font-size:12px">${t.rr_ratio||'—'}</td>
+        <td style="color:var(--text2);max-width:130px;overflow:hidden;text-overflow:ellipsis" title="${t.notes||''}">${t.notes||'—'}</td>
+        <td><button class="del-btn" onclick="removeTrade(${t.id})">✕</button></td>
+      </tr>`;
+    });
+  }
+  html+=`</tbody></table></div></div>`;
+  document.getElementById('mainContent').innerHTML=html;
+}
+
+// ── REAL MONTH VIEW ───────────────────────────────────────
+function renderMonth(monthIdx){
+  const phIdx=activePhase-1;
+  const info=PHASE_PLAN[phIdx].monthTargets[monthIdx];
+  const num=activePhase*100+monthIdx+1;
+  const arr=tradesForMonthNum(num);
+  const st=stats(arr);
+  const bal=realBalance(phIdx,monthIdx);
   const diff=bal-info.s;
   const need=info.t-info.s;
   const prog=Math.max(0,Math.min(100,(diff/need)*100));
   const goalDone=bal>=info.t;
   const balColor=goalDone?'var(--green)':diff>=0?'var(--gold)':'var(--red)';
   const diffStr=(diff>=0?'+':'')+diff.toFixed(2);
-
   const lastTrade=arr.length>0?arr[arr.length-1]:null;
+
   const tickerHtml=lastTrade?`
     <div class="live-ticker fade-in">
       <div class="lt-dot"></div>
-      <div class="lt-text">Last: <span>${lastTrade.pair}</span> ${lastTrade.result==='Win'?'✓ WIN':'✕ LOSS'} &nbsp;·&nbsp; PnL: <span class="${parseFloat(lastTrade.pnl)>=0?'pnl-pos':'pnl-neg'}">${parseFloat(lastTrade.pnl)>=0?'+':''}$${parseFloat(lastTrade.pnl).toFixed(2)}</span> &nbsp;·&nbsp; Balance: <span>$${bal.toFixed(2)}</span></div>
+      <div class="lt-text">Last: <span>${lastTrade.pair}</span> ${lastTrade.result==='Win'?'✓ WIN':'✕ LOSS'} &nbsp;·&nbsp; PnL: <span class="${parseFloat(lastTrade.pnl)>=0?'pnl-pos':'pnl-neg'}">${parseFloat(lastTrade.pnl)>=0?'+':''}$${parseFloat(lastTrade.pnl).toFixed(2)}</span> &nbsp;·&nbsp; Bal: <span>$${bal.toFixed(2)}</span></div>
     </div>`:'';
 
   let html=`
   <div class="month-hero fade-in">
     <div>
-      <div class="mh-title">Trading Period</div>
+      <div class="mh-title">Phase ${activePhase} — ${PHASE_PLAN[phIdx].timeline}</div>
       <div class="mh-month">${info.l}</div>
-      <div class="mh-sub">Start: <span>$${info.s}</span> &nbsp;·&nbsp; Target: <span>$${info.t}</span> &nbsp;·&nbsp; Need: <span>+$${need.toFixed(0)}</span></div>
+      <div class="mh-sub">Start: <span>$${info.s}</span> &nbsp;·&nbsp; Target: <span>$${info.t}</span> &nbsp;·&nbsp; Need: <span>+$${(info.t-bal>0?(info.t-bal):0).toFixed(0)}</span></div>
     </div>
     <div class="mh-balance">
       <div class="mh-bal-lbl">Live Balance</div>
@@ -538,7 +652,7 @@ function renderMonth(m){
   </div>
 
   <div class="add-section fade-in">
-    <div class="section-title">Add Trade — ${info.l}</div>
+    <div class="section-title">Add Trade — Phase ${activePhase} ${info.l}</div>
     <div class="form-grid">
       <div class="fg"><label>Date</label><input type="date" id="f-date" value="${new Date().toISOString().split('T')[0]}"></div>
       <div class="fg"><label>Pair</label><select id="f-pair">${PAIRS.map(p=>`<option>${p}</option>`).join('')}</select></div>
@@ -553,7 +667,7 @@ function renderMonth(m){
       <div class="fg" style="grid-column:1/-1"><label>Notes</label><input type="text" id="f-notes" placeholder="ICT OB + FVG, London session..."></div>
     </div>
     <div class="form-actions">
-      <button class="btn btn-gold" id="add-btn" onclick="submitTrade(${monthNum})">+ Save to Supabase</button>
+      <button class="btn btn-gold" id="add-btn" onclick="submitTrade(${num})">+ Save to Supabase</button>
       <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
       <span class="rr-preview" id="rr-preview"></span>
     </div>
@@ -595,7 +709,7 @@ function renderMonth(m){
         <td><span class="src s${t.source}">${t.source}</span></td>
         <td style="color:var(--text2);font-family:var(--mono);font-size:12px">${t.rr_ratio||'—'}</td>
         <td style="color:var(--text2);max-width:130px;overflow:hidden;text-overflow:ellipsis" title="${t.notes||''}">${t.notes||'—'}</td>
-        <td><button class="del-btn" onclick="removeTrade(${t.id})" title="Delete">✕</button></td>
+        <td><button class="del-btn" onclick="removeTrade(${t.id})">✕</button></td>
       </tr>`;
     });
   }
@@ -605,32 +719,18 @@ function renderMonth(m){
 
 // ── OVERVIEW ──────────────────────────────────────────────
 function renderOverview(){
-  const gb=globalBalance();
-  const gs=globalStats();
-  const totalProg=Math.min(100,((gb-PHASE_START)/(PHASE_GOAL-PHASE_START))*100);
-  const goalDoneGlobal=gb>=PHASE_GOAL;
+  const isDemo=activePhase===0;
+  const demoBal=globalDemoBalance();
+  const realBal=globalRealBalance();
+  const allPhaseTrades=allTrades.filter(t=>t.month_num>0);
+  const gs=stats(allPhaseTrades);
+  const totalProg=Math.min(100,((realBal-100)/9900)*100);
 
   let html=`
   <div class="overall-goal fade-in">
-    <div class="og-label">Phase 1 Challenge — $100 → $500</div>
-    <div class="og-val">$${gb.toFixed(2)}</div>
-    <div class="og-sub">Target: $500 &nbsp;·&nbsp; Withdraw $250 → Phase 2 starts with $250 &nbsp;·&nbsp; <span style="color:var(--gold)">${totalProg.toFixed(1)}% complete</span></div>
-  </div>
-  <div class="prog-wrap fade-in">
-    <div class="prog-top">
-      <span class="prog-label">Phase 1 Progress · $100 → $500</span>
-      <span class="prog-pct" style="color:${goalDoneGlobal?'var(--green)':'var(--gold)'}">${goalDoneGlobal?'✓ PHASE 1 COMPLETE! Withdraw $250':totalProg.toFixed(1)+'%'}</span>
-    </div>
-    <div class="prog-track">
-      <div class="prog-fill" style="width:${totalProg}%;background:${goalDoneGlobal?'var(--green)':'linear-gradient(90deg,var(--gold),#ffd166)'}"></div>
-    </div>
-    <div class="prog-milestones">
-      <span class="prog-m">$100</span>
-      <span class="prog-m">$200</span>
-      <span class="prog-m">$300</span>
-      <span class="prog-m">$400</span>
-      <span class="prog-m">$500 🎯</span>
-    </div>
+    <div class="og-label">${isDemo?'Demo Phase Running':'Real Trading Journey'}</div>
+    <div class="og-val">${isDemo?'$'+demoBal.toFixed(2):'$'+realBal.toFixed(2)}</div>
+    <div class="og-sub">${isDemo?'Demo · July–December 2026 · Confidence Building':'$100 → $10,000 Real Journey · '+totalProg.toFixed(1)+'% complete'}</div>
   </div>
   <div class="stats-row fade-in">
     <div class="scard gold"><div class="sc-lbl">Total Trades</div><div class="sc-val gold">${gs.total}</div></div>
@@ -643,34 +743,54 @@ function renderOverview(){
     <div class="ov-card">
       <div class="ov-card-title">Month-by-Month</div>`;
 
-  for(let m=0;m<MONTHS.length;m++){
-    const info=MONTHS[m];
-    const arr=tradesForMonth(m+1);
-    const bal=liveBalance(m);
-    const hasTrades=arr.length>0;
-    const pct=hasTrades?((bal-info.s)/info.s*100):null;
-    const barW=Math.min(100,((bal-PHASE_START)/(PHASE_GOAL-PHASE_START))*100);
-    const goalDone=hasTrades&&bal>=info.t;
-    html+=`<div class="bal-item">
-      <div class="bi-num">${m+1}</div>
-      <div class="bi-info">
-        <div class="bi-label">${info.l}</div>
-        <div class="bi-bar-wrap"><div class="bi-bar" style="width:${Math.max(0,barW)}%;background:${goalDone?'var(--green)':hasTrades?'var(--gold)':'var(--s3)'}"></div></div>
-      </div>
-      <div class="bi-right">
-        <div class="bi-val" style="color:${hasTrades?(goalDone?'var(--green)':'var(--text)'):'var(--text3)'}">
-          ${hasTrades?'$'+bal.toFixed(2):'$'+info.t+' target'}
+  if(isDemo){
+    DEMO_MONTHS.forEach((dm,i)=>{
+      const num=-(i+1);
+      const arr=tradesForMonthNum(num);
+      const pnl=arr.reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+      const st=stats(arr);
+      html+=`<div class="bal-item">
+        <div class="bi-num">${i+1}</div>
+        <div class="bi-info">
+          <div class="bi-label">${dm.full}</div>
+          <div class="bi-bar-wrap"><div class="bi-bar" style="width:${arr.length>0?Math.min(100,Math.abs(pnl)/250*100):0}%;background:${pnl>=0?'var(--blue)':'var(--red)'}"></div></div>
         </div>
-        ${pct!==null?`<div class="bi-pct ${pct>=0?'pct-pos':'pct-neg'}">${pct>=0?'+':''}${pct.toFixed(1)}%</div>`:'<div class="pct-none bi-pct">—</div>'}
-      </div>
-    </div>`;
+        <div class="bi-right">
+          <div class="bi-val" style="color:${arr.length>0?'var(--text)':'var(--text3)'}">${arr.length>0?(pnl>=0?'+':'')+'$'+pnl.toFixed(2):'No trades'}</div>
+          ${arr.length>0?`<div class="bi-pct ${pnl>=0?'pct-pos':'pct-neg'}">${st.wins}W ${st.losses}L</div>`:'<div class="pct-none bi-pct">—</div>'}
+        </div>
+      </div>`;
+    });
+  } else {
+    const ph=PHASE_PLAN[activePhase-1];
+    ph.monthTargets.forEach((m,i)=>{
+      const num=activePhase*100+i+1;
+      const arr=tradesForMonthNum(num);
+      const bal=realBalance(activePhase-1,i);
+      const hasTrades=arr.length>0;
+      const pct=hasTrades?((bal-m.s)/m.s*100):null;
+      const goalDone=hasTrades&&bal>=m.t;
+      html+=`<div class="bal-item">
+        <div class="bi-num">${i+1}</div>
+        <div class="bi-info">
+          <div class="bi-label">${m.l}</div>
+          <div class="bi-bar-wrap"><div class="bi-bar" style="width:${hasTrades?Math.min(100,(bal/m.t)*100):0}%;background:${goalDone?'var(--green)':hasTrades?'var(--gold)':'var(--s3)'}"></div></div>
+        </div>
+        <div class="bi-right">
+          <div class="bi-val" style="color:${hasTrades?(goalDone?'var(--green)':'var(--text)'):'var(--text3)'}">
+            ${hasTrades?'$'+bal.toFixed(2):'$'+m.t+' target'}
+          </div>
+          ${pct!==null?`<div class="bi-pct ${pct>=0?'pct-pos':'pct-neg'}">${pct>=0?'+':''}${pct.toFixed(1)}%</div>`:'<div class="pct-none bi-pct">—</div>'}
+        </div>
+      </div>`;
+    });
   }
 
-  html+=`</div><div class="ov-card"><div class="ov-card-title">Source Performance (TP/SR/EC/HF)</div>`;
-  SRCS.forEach(src=>{
+  html+=`</div><div class="ov-card"><div class="ov-card-title">Source Performance</div>`;
+  const srcNames={TP:'TradingPapa',SR:'Sniper Entry',EC:'EarnwithRashid',HF:'Manual HF'};
+  ['TP','SR','EC','HF'].forEach(src=>{
     const arr=allTrades.filter(t=>t.source===src);
     const s=stats(arr);
-    const srcNames={TP:'TradingPapa',SR:'Sniper Entry',EC:'EarnwithRashid',HF:'Manual HF'};
     if(s.total===0){
       html+=`<div class="bal-item"><div class="bi-info"><div class="bi-label"><span class="src s${src}">${src}</span> <span style="margin-left:6px;color:var(--text2)">${srcNames[src]}</span></div></div><div class="bi-right"><div class="bi-val" style="color:var(--text3)">No trades</div></div></div>`;
     } else {
@@ -690,99 +810,78 @@ function renderOverview(){
   document.getElementById('mainContent').innerHTML=html;
 }
 
-// ── PHASE PLAN PAGE ───────────────────────────────────────
+// ── PHASE PLAN ────────────────────────────────────────────
 function renderPhasePlan(){
-  const gb = globalBalance();
-  const pi = getCurrentPhaseInfo();
-  const hondaUnlocked = pi.phase >= 4;
-  const phase3Progress = pi.phase === 3 ? parseFloat(pi.progress) : (pi.phase > 3 ? 100 : 0);
+  const realBal=globalRealBalance();
+  let curPhase=1;
+  if(realBal>=500) curPhase=2;
+  if(realBal>=1000) curPhase=3;
+  if(realBal>=5000) curPhase=4;
 
-  let html = `
+  const phase3Progress = activePhase===3 ? Math.min(100,((realBal-500)/4500*100)) : (activePhase>3?100:0);
+  const hondaUnlocked = realBal>=5000;
+
+  let html=`
   <div class="phase-header fade-in">
     <h2>🗺️ Hassan FX — Full Phase Plan</h2>
     <p>$100 se $10,000 tak ka safar + FTMO $25K & $100K — ~3.5 Saal</p>
-    <div class="current-badge">Currently: ${pi.label} · ${pi.progress}% complete</div>
+    <div class="current-badge">Active: ${activePhase===0?'Demo Phase':'Phase '+activePhase} · Click "▶ Active" to switch phases</div>
   </div>
 
-  <!-- DEMO PHASE CARD -->
-  <div class="phase-card fade-in" style="border-color:var(--blue);margin-bottom:16px;">
+  <!-- DEMO CARD -->
+  <div class="phase-card fade-in" style="border-color:var(--blue);margin-bottom:14px;">
     <div class="phase-card-header">
       <div class="phase-num" style="background:var(--blue);color:#fff">📊</div>
       <div class="phase-card-title">
         <div class="pct-name">Demo Phase — Confidence Building</div>
         <div class="pct-range" style="color:var(--blue)">July 2026 – December 2026</div>
       </div>
-      <div class="phase-status-badge" style="background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue)">6 Months</div>
+      <button class="phase-status-badge ${activePhase===0?'psb-active':'psb-locked'}" onclick="switchPhase(0)">${activePhase===0?'▶ Active':'Switch to Demo'}</button>
     </div>
     <div class="phase-card-body">
       <div style="font-size:13px;color:var(--text2);line-height:1.7;">
-        Strategy nahi — <strong style="color:var(--text)">confidence build karna</strong> hai. Consistent profitable weeks dekh ke self belief solid karna. Emotional hote hi screen band, rest karo. December 2026 ke baad check karo: Win rate 50%+? 3 consecutive profitable months? Tab real pe utro!
+        Strategy nahi — <strong style="color:var(--text)">confidence build karna</strong> hai. Consistent profitable weeks. Emotional hote hi screen band. December 2026 ke baad check karo: Win rate 50%+? 3 consecutive profitable months? Tab real pe utro!
       </div>
       <div class="phase-footer" style="margin-top:.75rem">
         <div class="pf-item">📅 <span>6 months practice</span></div>
-        <div class="pf-item">🎯 <span>Demo pe $100 → $500 target</span></div>
+        <div class="pf-item">🎯 <span>Target: $250 demo profit</span></div>
         <div class="pf-item">📒 <span>Journal mein har trade log karo</span></div>
         <div class="pf-item">✅ <span>Real start: January 2027</span></div>
       </div>
     </div>
-  </div>`;
+  </div>
 
-  // Honda Card
-  html += `
-  <div class="honda-card ${hondaUnlocked?'':'locked'} fade-in">
-    <img class="honda-img" src="${HONDA_IMG}" alt="Honda CG 125" onerror="this.style.display='none'">
-    <div class="honda-info">
-      <div class="honda-title">🏍️ Honda CG 125 — Dream Reward</div>
-      <div class="honda-sub">Phase 3 complete hone pe unlock hoga — $5,000 target achieve karo!</div>
-      ${hondaUnlocked
-        ? `<div class="honda-unlocked-msg">✅ UNLOCKED! Phase 3 complete — Honda lene ka waqt aa gaya bhai! 🎉</div>`
-        : `<div class="honda-lock-msg">🔒 Locked — Phase 3 ($500 → $5,000) complete karo</div>`
-      }
-      <div class="honda-prog-wrap">
-        <div class="honda-prog-label">Phase 3 Progress: ${phase3Progress.toFixed(1)}%</div>
-        <div class="honda-prog-track">
-          <div class="honda-prog-fill" style="width:${phase3Progress}%"></div>
-        </div>
-      </div>
-    </div>
-  </div>`;
+  <div class="phases-grid fade-in">`;
 
-  // Phase cards
-  html += `<div class="phases-grid fade-in">`;
+  PHASE_PLAN.forEach((ph,idx)=>{
+    const isActive=activePhase===ph.num;
+    const isDone=realBal>=(idx===0?500:idx===1?1000:idx===2?5000:10000);
+    const cardClass=isDone?'completed-phase':isActive?'active-phase':'locked-phase';
+    const numClass=isDone?'pn-done':isActive?'pn-active':'pn-locked';
+    const statusLabel=isActive?'▶ Active':isDone?'✓ Complete':'Activate';
+    const statusClass=isActive?'psb-active':isDone?'psb-done':'psb-locked';
 
-  PHASE_PLAN.forEach((ph, idx) => {
-    const phaseNum = ph.num;
-    const isActive = pi.phase === phaseNum;
-    const isDone = pi.phase > phaseNum;
-    const isLocked = pi.phase < phaseNum;
-
-    const cardClass = isDone ? 'completed-phase' : isActive ? 'active-phase' : 'locked-phase';
-    const numClass = isDone ? 'pn-done' : isActive ? 'pn-active' : 'pn-locked';
-    const statusLabel = isDone ? '✓ Complete' : isActive ? '▶ Active' : '🔒 Locked';
-    const statusClass = isDone ? 'psb-done' : isActive ? 'psb-active' : 'psb-locked';
-
-    html += `
+    html+=`
     <div class="phase-card ${cardClass}">
       <div class="phase-card-header">
-        <div class="phase-num ${numClass}">${phaseNum}</div>
+        <div class="phase-num ${numClass}">${ph.num}</div>
         <div class="phase-card-title">
           <div class="pct-name">${ph.label} — ${ph.timeline}</div>
           <div class="pct-range">$${ph.start} → $${ph.target}</div>
         </div>
-        <div class="phase-status-badge ${statusClass}">${statusLabel}</div>
+        <button class="phase-status-badge ${statusClass}" onclick="switchPhase(${ph.num})">${statusLabel}</button>
       </div>
       <div class="phase-card-body">
         <div class="phase-months-grid">`;
 
-    ph.monthTargets.forEach((mt, mi) => {
-      html += `
-          <div class="pm-item ${isDone?'pm-done':isActive&&mi===0?'pm-current':''}">
-            <div class="pm-label">${mt.l}</div>
-            <div class="pm-range">$${mt.s} → $${mt.t}</div>
-          </div>`;
+    ph.monthTargets.forEach((mt,mi)=>{
+      html+=`<div class="pm-item ${isDone?'pm-done':isActive&&mi===0?'pm-current':''}">
+        <div class="pm-label">${mt.l}</div>
+        <div class="pm-range">$${mt.s} → $${mt.t}</div>
+      </div>`;
     });
 
-    html += `</div>
+    html+=`</div>
         ${ph.note?`<div style="font-size:12px;color:var(--text2);margin:10px 0;padding:8px 12px;background:var(--s3);border-radius:8px;border-left:3px solid var(--gold)">${ph.note}</div>`:''}
         <div class="phase-footer">
           <div class="pf-item">💰 Withdraw: <span>$${ph.withdraw}</span></div>
@@ -791,104 +890,108 @@ function renderPhasePlan(){
           <div class="pf-item">🚀 Next Capital: <span>$${ph.next}</span></div>
           ${ph.ftmo?'<div class="pf-item" style="color:var(--blue)">🎯 <span style="color:var(--blue)">FTMO $25K Challenge lo!</span></div>':''}
           ${ph.honda?'<div class="pf-item" style="color:var(--gold)">🏍️ <span style="color:var(--gold)">Honda CG 125 Unlock!</span></div>':''}
-          ${ph.shadi?'<div class="pf-item" style="color:var(--purple)">💍 <span style="color:var(--purple)">Shadi 2029–2030 — Amna ke saath! 🥹</span></div>':''}
+          ${ph.shadi?'<div class="pf-item" style="color:var(--purple)">💍 <span style="color:var(--purple)">Shadi 2029–2030 🥹</span></div>':''}
         </div>
       </div>
-    </div>
+    </div>`;
 
-    ${ph.ftmo ? `
-    <!-- FTMO CHALLENGE CARD after Phase 2 -->
-    <div class="phase-card fade-in" style="border-color:var(--blue);margin-bottom:0;">
-      <div class="phase-card-header">
-        <div class="phase-num" style="background:var(--blue);color:#fff">F</div>
-        <div class="phase-card-title">
-          <div class="pct-name">FTMO $25,000 Challenge</div>
-          <div class="pct-range" style="color:var(--blue)">June – September 2028</div>
+    // HONDA after Phase 3
+    if(ph.honda){
+      html+=`
+      <div class="honda-card ${hondaUnlocked?'':'locked'} fade-in">
+        <img class="honda-img" src="${HONDA_IMG}" alt="Honda CG 125" onerror="this.style.display='none'">
+        <div class="honda-info">
+          <div class="honda-title">🏍️ Honda CG 125 — Dream Reward</div>
+          <div class="honda-sub">Phase 3 complete hone pe unlock hoga — $5,000 target achieve karo!</div>
+          ${hondaUnlocked
+            ?`<div class="honda-unlocked-msg">✅ UNLOCKED! Honda lene ka waqt aa gaya bhai! 🎉</div>`
+            :`<div class="honda-lock-msg">🔒 Locked — Phase 3 ($500 → $5,000) complete karo</div>`}
+          <div class="honda-prog-wrap">
+            <div class="honda-prog-label">Phase 3 Progress: ${phase3Progress.toFixed(1)}%</div>
+            <div class="honda-prog-track"><div class="honda-prog-fill" style="width:${phase3Progress}%"></div></div>
+          </div>
         </div>
-        <div class="phase-status-badge" style="background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue)">${isDone||isActive?'🎯 Target':'🔒 Locked'}</div>
-      </div>
-      <div class="phase-card-body">
-        <div class="phase-months-grid">
-          <div class="pm-item"><div class="pm-label">Fee</div><div class="pm-range" style="color:var(--blue)">~€250 (~$270)</div></div>
-          <div class="pm-item"><div class="pm-label">Phase 1 Target</div><div class="pm-range">8% = $2,000</div></div>
-          <div class="pm-item"><div class="pm-label">Verification</div><div class="pm-range">5% = $1,250</div></div>
-          <div class="pm-item"><div class="pm-label">Profit Split</div><div class="pm-range" style="color:var(--green)">90% tere liye</div></div>
-          <div class="pm-item"><div class="pm-label">Fee Refund</div><div class="pm-range" style="color:var(--green)">1st payout pe wapas</div></div>
-          <div class="pm-item"><div class="pm-label">Monthly Income</div><div class="pm-range" style="color:var(--gold)">~$2,250/month</div></div>
-        </div>
-        <div style="font-size:12px;color:var(--text2);margin-top:10px;padding:8px 12px;background:var(--s3);border-radius:8px;border-left:3px solid var(--blue)">
-          Pass karte hi $25K funded account + fee refund. Phase 3 ke saath simultaneously trading! Monthly ~$2,250 = ~6 lac PKR income shuru.
-        </div>
-      </div>
-    </div>` : ''}
+      </div>`;
+    }
 
-    ${ph.honda && pi.phase >= 3 ? `
-    <!-- FTMO $100K after Phase 3 -->
-    <div class="phase-card fade-in" style="border-color:var(--green);margin-bottom:0;">
-      <div class="phase-card-header">
-        <div class="phase-num" style="background:var(--green);color:#000">F</div>
-        <div class="phase-card-title">
-          <div class="pct-name">FTMO $100,000 Challenge</div>
-          <div class="pct-range" style="color:var(--green)">Phase 3 complete hone pe</div>
+    // FTMO $25K after Phase 2
+    if(ph.ftmo){
+      html+=`
+      <div class="phase-card fade-in" style="border-color:var(--blue);margin-bottom:0;">
+        <div class="phase-card-header">
+          <div class="phase-num" style="background:var(--blue);color:#fff">F</div>
+          <div class="phase-card-title">
+            <div class="pct-name">FTMO $25,000 Challenge</div>
+            <div class="pct-range" style="color:var(--blue)">June – September 2028</div>
+          </div>
+          <div class="phase-status-badge" style="background:var(--blue-dim);color:var(--blue);border-color:var(--blue)">🎯 Target</div>
         </div>
-        <div class="phase-status-badge" style="background:var(--green-dim);color:var(--green);border:1px solid var(--green)">🏆 End Game</div>
-      </div>
-      <div class="phase-card-body">
-        <div class="phase-months-grid">
-          <div class="pm-item"><div class="pm-label">Fee</div><div class="pm-range" style="color:var(--green)">~€540 (~$580)</div></div>
-          <div class="pm-item"><div class="pm-label">Profit Split</div><div class="pm-range" style="color:var(--green)">90% tere liye</div></div>
-          <div class="pm-item"><div class="pm-label">Monthly 15%</div><div class="pm-range" style="color:var(--gold)">$9,000/month</div></div>
-          <div class="pm-item"><div class="pm-label">Monthly 15% PKR</div><div class="pm-range" style="color:var(--gold)">~25 lac/month</div></div>
+        <div class="phase-card-body">
+          <div class="phase-months-grid">
+            <div class="pm-item"><div class="pm-label">Fee</div><div class="pm-range" style="color:var(--blue)">~€250 (~$270)</div></div>
+            <div class="pm-item"><div class="pm-label">Phase 1 Target</div><div class="pm-range">10% = $2,500</div></div>
+            <div class="pm-item"><div class="pm-label">Verification</div><div class="pm-range">5% = $1,250</div></div>
+            <div class="pm-item"><div class="pm-label">Daily Loss Limit</div><div class="pm-range" style="color:var(--red)">5% = $1,250</div></div>
+            <div class="pm-item"><div class="pm-label">Profit Split</div><div class="pm-range" style="color:var(--green)">80% → 90%</div></div>
+            <div class="pm-item"><div class="pm-label">Monthly Income</div><div class="pm-range" style="color:var(--gold)">~$2,000/month</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-top:10px;padding:8px 12px;background:var(--s3);border-radius:8px;border-left:3px solid var(--blue)">
+            Risk per trade: 0.5% = $125. Daily max 3 trades. Pass karte hi fee refund + $25K funded!
+          </div>
         </div>
-        <div style="font-size:12px;color:var(--text2);margin-top:10px;padding:8px 12px;background:var(--s3);border-radius:8px;border-left:3px solid var(--green)">
-          $25K + $100K dono simultaneously! Total monthly: ~$11,250 = ~31 lac PKR 💰 Properties, family support, luxury life — sab Amna ke saath! 🥹
+      </div>`;
+    }
+
+    // FTMO $100K — always show (locked/unlocked)
+    if(ph.honda){
+      const f100Unlocked=realBal>=5000;
+      html+=`
+      <div class="phase-card fade-in" style="border-color:${f100Unlocked?'var(--green)':'var(--border2)'};margin-bottom:0;${f100Unlocked?'':'opacity:.6'}">
+        <div class="phase-card-header">
+          <div class="phase-num" style="background:${f100Unlocked?'var(--green)':'var(--s3)'};color:${f100Unlocked?'#000':'var(--text3)'}">F</div>
+          <div class="phase-card-title">
+            <div class="pct-name">FTMO $100,000 Challenge</div>
+            <div class="pct-range" style="color:${f100Unlocked?'var(--green)':'var(--text3)'}">Phase 3 complete hone pe</div>
+          </div>
+          <div class="phase-status-badge" style="background:${f100Unlocked?'var(--green-dim)':'var(--s3)'};color:${f100Unlocked?'var(--green)':'var(--text3)'};border-color:${f100Unlocked?'var(--green)':'var(--border2)'}">
+            ${f100Unlocked?'🏆 Unlocked':'🔒 Locked'}
+          </div>
         </div>
-      </div>
-    </div>` : ''}
-`;
+        <div class="phase-card-body">
+          <div class="phase-months-grid">
+            <div class="pm-item"><div class="pm-label">Fee</div><div class="pm-range">~€540 (~$580)</div></div>
+            <div class="pm-item"><div class="pm-label">Profit Split</div><div class="pm-range" style="color:var(--green)">80% → 90%</div></div>
+            <div class="pm-item"><div class="pm-label">5% Monthly</div><div class="pm-range" style="color:var(--gold)">$4,000/month</div></div>
+            <div class="pm-item"><div class="pm-label">PKR Monthly</div><div class="pm-range" style="color:var(--gold)">~11 lac/month</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--text2);margin-top:10px;padding:8px 12px;background:var(--s3);border-radius:8px;border-left:3px solid ${f100Unlocked?'var(--green)':'var(--border2)'}">
+            $25K + $100K dono simultaneously! Total: ~$6,000/month = ~17 lac PKR 💰
+          </div>
+        </div>
+      </div>`;
+    }
   });
 
-  html += `</div>
-
+  // Overall progress bar
+  html+=`</div>
   <div class="prog-wrap fade-in">
     <div class="prog-top">
       <span class="prog-label">Overall Journey · $100 → $10,000</span>
-      <span class="prog-pct" style="color:var(--gold)">${pi.label} Active</span>
+      <span class="prog-pct" style="color:var(--gold)">Phase ${activePhase===0?'Demo':activePhase} Active</span>
     </div>
     <div class="prog-track">
-      <div class="prog-fill" style="width:${Math.min(100,((gb-100)/9900)*100)}%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></div>
+      <div class="prog-fill" style="width:${Math.min(100,((realBal-100)/9900)*100)}%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></div>
     </div>
     <div class="prog-milestones">
       <span class="prog-m">$100</span>
       <span class="prog-m">P1 $500</span>
-      <span class="prog-m">P2 $1K + FTMO $25K 🎯</span>
-      <span class="prog-m">P3 $5K + Honda 🏍️</span>
-      <span class="prog-m">P4 $10K + Shadi 💍</span>
+      <span class="prog-m">P2 $1K+FTMO🎯</span>
+      <span class="prog-m">P3 $5K+Honda🏍️</span>
+      <span class="prog-m">P4 $10K+Shadi💍</span>
     </div>
   </div>
 
-  <!-- END GAME SUMMARY -->
-  <div class="phase-card fade-in" style="border-color:var(--gold);background:linear-gradient(135deg,#1a1200,#0e1523);">
-    <div class="phase-card-header">
-      <div class="phase-num pn-active">🏆</div>
-      <div class="phase-card-title">
-        <div class="pct-name" style="color:var(--gold)">End Game — 2029–2030</div>
-        <div class="pct-range">$10K Personal + FTMO $25K + FTMO $100K</div>
-      </div>
-    </div>
-    <div class="phase-card-body">
-      <div class="phase-months-grid">
-        <div class="pm-item"><div class="pm-label">FTMO $25K Monthly</div><div class="pm-range" style="color:var(--green)">~$2,250 | ~6 lac PKR</div></div>
-        <div class="pm-item"><div class="pm-label">FTMO $100K Monthly</div><div class="pm-range" style="color:var(--green)">~$9,000 | ~25 lac PKR</div></div>
-        <div class="pm-item"><div class="pm-label">Total Monthly</div><div class="pm-range" style="color:var(--gold);font-size:14px">~$11,250 | ~31 lac PKR 💰</div></div>
-        <div class="pm-item"><div class="pm-label">Personal Capital</div><div class="pm-range" style="color:var(--gold)">$10,000+</div></div>
-        <div class="pm-item"><div class="pm-label">Honda CG 125</div><div class="pm-range">✅ Already hai 🏍️</div></div>
-        <div class="pm-item"><div class="pm-label">Shadi</div><div class="pm-range" style="color:var(--purple)">💍 Amna ke saath 🥹</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GOLDEN RULES -->
+  <!-- GOLDEN RULES — FIXED -->
   <div class="phase-card fade-in" style="border-color:var(--red);">
     <div class="phase-card-header">
       <div class="phase-num" style="background:var(--red);color:#fff">⚡</div>
@@ -898,18 +1001,26 @@ function renderPhasePlan(){
       </div>
     </div>
     <div class="phase-card-body">
-      <div class="phase-months-grid">
-        <div class="pm-item" style="border-left:3px solid var(--red)"><div class="pm-label">🛑 Rule 1</div><div class="pm-range">Emotional hote hi screen band</div></div>
-        <div class="pm-item" style="border-left:3px solid var(--gold)"><div class="pm-label">📊 Rule 2</div><div class="pm-range">Max 3 trades/day</div></div>
-        <div class="pm-item" style="border-left:3px solid var(--red)"><div class="pm-label">❌ Rule 3</div><div class="pm-range">3 consecutive loss → us din band</div></div>
-        <div class="pm-item" style="border-left:3px solid var(--blue)"><div class="pm-label">🌙 Rule 4</div><div class="pm-range">No Asian session entries</div></div>
-        <div class="pm-item" style="border-left:3px solid var(--purple)"><div class="pm-label">💪 Rule 5</div><div class="pm-range">Discipline = sab kuch</div></div>
-        <div class="pm-item" style="border-left:3px solid var(--green)"><div class="pm-label">📒 Rule 6</div><div class="pm-range">Har trade journal mein log karo</div></div>
+      <div class="rules-grid">
+        <div class="rule-item" style="border-left:3px solid var(--red)"><div class="rule-num">Rule 1</div><div class="rule-text">🛑 Emotional hote hi screen band karo</div></div>
+        <div class="rule-item" style="border-left:3px solid var(--gold)"><div class="rule-num">Rule 2</div><div class="rule-text">📊 Max 3 trades per day</div></div>
+        <div class="rule-item" style="border-left:3px solid var(--red)"><div class="rule-num">Rule 3</div><div class="rule-text">❌ 3 consecutive loss → us din band</div></div>
+        <div class="rule-item" style="border-left:3px solid var(--blue)"><div class="rule-num">Rule 4</div><div class="rule-text">🌙 No Asian session entries</div></div>
+        <div class="rule-item" style="border-left:3px solid var(--purple)"><div class="rule-num">Rule 5</div><div class="rule-text">💪 Discipline = sab kuch</div></div>
+        <div class="rule-item" style="border-left:3px solid var(--green)"><div class="rule-num">Rule 6</div><div class="rule-text">📒 Har trade journal mein log karo</div></div>
       </div>
     </div>
   </div>`;
 
-  document.getElementById('mainContent').innerHTML = html;
+  document.getElementById('mainContent').innerHTML=html;
+}
+
+// ── SWITCH PHASE ──────────────────────────────────────────
+function switchPhase(phNum){
+  activePhase=phNum;
+  cur=0;
+  renderPage();
+  toast(phNum===0?'Demo Phase active!':'Phase '+phNum+' active — tabs updated!');
 }
 
 // ── FORM HELPERS ──────────────────────────────────────────
@@ -918,7 +1029,7 @@ function previewRR(){
   const sl=parseFloat(document.getElementById('f-sl')?.value);
   const tp=parseFloat(document.getElementById('f-tp')?.value);
   const el=document.getElementById('rr-preview');
-  if(!el)return;
+  if(!el) return;
   if(entry&&sl&&tp&&sl!==entry){
     const risk=Math.abs(entry-sl);
     const reward=Math.abs(tp-entry);
@@ -926,23 +1037,24 @@ function previewRR(){
     el.textContent='Auto RR: 1:'+rr;
     el.style.color=parseFloat(rr)>=2?'var(--green)':'var(--gold)';
     const rrEl=document.getElementById('f-rr');
-    if(rrEl)rrEl.value='1:'+rr;
+    if(rrEl) rrEl.value='1:'+rr;
   } else {
-    if(el)el.textContent='';
+    if(el) el.textContent='';
   }
 }
 
 function onResultChange(){
   const r=document.getElementById('f-result').value;
   const pnlEl=document.getElementById('f-pnl');
-  if(!pnlEl)return;
-  if(r==='BE')pnlEl.value='0';
+  if(!pnlEl) return;
+  if(r==='BE') pnlEl.value='0';
   pnlEl.placeholder=r==='Win'?'+15.50':r==='Loss'?'-8.20':r==='BE'?'0.00':'(open)';
 }
 
 function onPnlInput(){
   const r=document.getElementById('f-result').value;
-  const pnl=parseFloat(document.getElementById('f-pnl').value);
+  const val=document.getElementById('f-pnl').value;
+  const pnl=parseFloat(val);
   if(!isNaN(pnl)){
     if(r==='Win'&&pnl<0) document.getElementById('f-pnl').value=Math.abs(pnl);
     if(r==='Loss'&&pnl>0) document.getElementById('f-pnl').value=-Math.abs(pnl);
@@ -952,16 +1064,20 @@ function onPnlInput(){
 function clearForm(){
   ['f-entry','f-sl','f-tp','f-pnl','f-rr','f-notes'].forEach(id=>{
     const el=document.getElementById(id);
-    if(el)el.value='';
+    if(el) el.value='';
   });
   const rp=document.getElementById('rr-preview');
-  if(rp)rp.textContent='';
+  if(rp) rp.textContent='';
 }
 
-// ── SUBMIT ────────────────────────────────────────────────
+// ── SUBMIT — BUG 3 FIXED ──────────────────────────────────
 async function submitTrade(monthNum){
-  const pnlVal=document.getElementById('f-pnl').value;
-  if(pnlVal===''&&pnlVal!=='0'){toast('P&L amount required!','error');return;}
+  const pnlEl=document.getElementById('f-pnl');
+  const pnlVal=pnlEl?pnlEl.value.trim():'';
+  // FIX: proper empty check
+  if(pnlVal===''){ toast('P&L amount required!','error'); return; }
+  const pnlNum=parseFloat(pnlVal);
+  if(isNaN(pnlNum)){ toast('P&L must be a number!','error'); return; }
 
   const btn=document.getElementById('add-btn');
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
@@ -975,17 +1091,16 @@ async function submitTrade(monthNum){
     sl: parseFloat(document.getElementById('f-sl').value)||null,
     tp: parseFloat(document.getElementById('f-tp').value)||null,
     result: document.getElementById('f-result').value,
-    pnl: parseFloat(pnlVal)||0,
+    pnl: pnlNum,
     source: document.getElementById('f-src').value,
     rr_ratio: document.getElementById('f-rr').value||null,
     notes: document.getElementById('f-notes').value||null
   };
 
-  try {
+  try{
     const inserted=await sbInsert(trade);
     allTrades.push(inserted[0]);
-    const newBal=liveBalance(monthNum-1);
-    toast(`✓ Saved! New balance: $${newBal.toFixed(2)}`);
+    toast(`✓ Saved! PnL: ${pnlNum>=0?'+':''}$${pnlNum.toFixed(2)}`);
     clearForm();
     renderPage();
   } catch(e){
@@ -996,10 +1111,10 @@ async function submitTrade(monthNum){
 
 // ── DELETE ────────────────────────────────────────────────
 async function removeTrade(id){
-  if(!confirm('Delete this trade from Supabase?'))return;
+  if(!confirm('Delete this trade?')) return;
   const btn=event.target;
   btn.disabled=true;
-  try {
+  try{
     await sbDelete(id);
     allTrades=allTrades.filter(t=>t.id!==id);
     toast('Trade deleted','error');
@@ -1016,6 +1131,7 @@ function renderPage(){
   renderTabs();
   if(cur===-2) renderPhasePlan();
   else if(cur===-1) renderOverview();
+  else if(activePhase===0) renderDemoMonth(cur);
   else renderMonth(cur);
 }
 
