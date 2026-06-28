@@ -509,6 +509,16 @@ function renderTabs(){
   pp.onclick=()=>{cur=-2;renderPage();};
   nav.appendChild(pp);
 
+  // $30 Challenge tab
+  const ch=document.createElement('button');
+  ch.className='mtab'+(cur===-3?' active':'');
+  ch.style.borderColor='var(--green)';
+  ch.style.color=cur===-3?'#000':'var(--green)';
+  ch.style.background=cur===-3?'var(--green)':'transparent';
+  ch.textContent='💰 $30 Challenge';
+  ch.onclick=()=>{cur=-3;renderPage();};
+  nav.appendChild(ch);
+
   // Month tabs based on activePhase
   const months=getActivePhasemonths();
   months.forEach((m,i)=>{
@@ -1217,10 +1227,170 @@ async function removeTrade(id){
 function renderPage(){
   updateTopbar();
   renderTabs();
-  if(cur===-2) renderPhasePlan();
+  if(cur===-3) renderChallenge();
+  else if(cur===-2) renderPhasePlan();
   else if(cur===-1) renderOverview();
   else if(activePhase===0) renderDemoMonth(cur);
   else renderMonth(cur);
+}
+
+// ── $30 CHALLENGE ────────────────────────────────────────
+const CHALLENGE_DAYS = 30;
+const CHALLENGE_START = 3000; // cents
+const CHALLENGE_TARGET = 10000; // cents
+const CHALLENGE_DAILY_TARGET = 500; // cents
+
+async function loadChallengeData(){
+  try{
+    const res = await fetch(`${SB_URL}/rest/v1/challenge_days?select=*&order=day_num.asc`,{headers:HEADERS});
+    if(!res.ok) return {};
+    const rows = await res.json();
+    const map = {};
+    rows.forEach(r=>{ map[r.day_num]=r; });
+    return map;
+  }catch(e){ return {}; }
+}
+
+async function saveChallengDay(dayNum, data){
+  // Upsert
+  const res = await fetch(`${SB_URL}/rest/v1/challenge_days`, {
+    method:'POST',
+    headers:{...HEADERS,'Prefer':'resolution=merge-duplicates,return=representation'},
+    body: JSON.stringify({day_num:dayNum, ...data})
+  });
+  if(!res.ok){ const e=await res.text(); throw new Error(e); }
+  return await res.json();
+}
+
+function renderChallenge(){
+  loadChallengeData().then(data=>{
+    const totalFilled = Object.values(data).filter(r=>r.ending_balance).length;
+    const lastBal = totalFilled>0
+      ? Math.max(...Object.values(data).filter(r=>r.ending_balance).map(r=>parseFloat(r.ending_balance)))
+      : CHALLENGE_START;
+    const prog = Math.min(100,((lastBal-CHALLENGE_START)/(CHALLENGE_TARGET-CHALLENGE_START))*100);
+    const done = lastBal >= CHALLENGE_TARGET;
+
+    let html = `
+    <div class="phase-header fade-in" style="border-color:var(--green);background:linear-gradient(135deg,#001a0e,#0e1523);">
+      <h2 style="color:var(--green)">💰 $30 → $100 Challenge</h2>
+      <p>3000¢ se 10000¢ tak · Daily Target: +500¢ · Max 3 trades/day</p>
+      <div class="current-badge" style="background:var(--green);color:#000;">
+        ${done?'🎯 CHALLENGE COMPLETE!':'Day '+totalFilled+' of '+CHALLENGE_DAYS+' · '+prog.toFixed(1)+'% complete'}
+      </div>
+    </div>
+
+    <div class="prog-wrap fade-in">
+      <div class="prog-top">
+        <span class="prog-label">Progress · 3000¢ → 10000¢</span>
+        <span class="prog-pct" style="color:${done?'var(--green)':'var(--gold)'}">${done?'✓ DONE!':prog.toFixed(1)+'%'}</span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill" style="width:${prog}%;background:${done?'var(--green)':'linear-gradient(90deg,var(--gold),var(--gold2))'}"></div>
+      </div>
+      <div class="prog-milestones">
+        <span class="prog-m">3000¢ ($30)</span>
+        <span class="prog-m">5000¢</span>
+        <span class="prog-m">7000¢</span>
+        <span class="prog-m">10000¢ ($100) 🎯</span>
+      </div>
+    </div>
+
+    <div class="stats-row fade-in">
+      <div class="scard green"><div class="sc-lbl">Current Balance</div><div class="sc-val green">${lastBal}¢</div><div class="sc-sub">$${(lastBal/100).toFixed(2)}</div></div>
+      <div class="scard gold"><div class="sc-lbl">Remaining</div><div class="sc-val gold">${Math.max(0,CHALLENGE_TARGET-lastBal)}¢</div><div class="sc-sub">$${(Math.max(0,CHALLENGE_TARGET-lastBal)/100).toFixed(2)}</div></div>
+      <div class="scard blue"><div class="sc-lbl">Days Filled</div><div class="sc-val blue">${totalFilled}</div><div class="sc-sub">of ${CHALLENGE_DAYS}</div></div>
+      <div class="scard purple"><div class="sc-lbl">Days Left</div><div class="sc-val purple">${CHALLENGE_DAYS-totalFilled}</div><div class="sc-sub">to complete</div></div>
+    </div>
+
+    <div class="trades-wrap fade-in">
+      <div class="tw-header">
+        <div class="tw-title">Daily Challenge Log</div>
+        <span class="tw-badge">${CHALLENGE_DAYS} days</span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Starting Balance</th>
+            <th>Daily Target</th>
+            <th>Trades (W/L)</th>
+            <th>Result</th>
+            <th>Ending Balance</th>
+            <th>Notes</th>
+            <th></th>
+          </tr></thead>
+          <tbody>`;
+
+    let runBal = CHALLENGE_START;
+    for(let d=1; d<=CHALLENGE_DAYS; d++){
+      const row = data[d] || {};
+      const endBal = row.ending_balance ? parseFloat(row.ending_balance) : null;
+      const isFilled = endBal !== null;
+      const gain = isFilled ? endBal - runBal : null;
+      const targetMet = gain !== null && gain >= CHALLENGE_DAILY_TARGET;
+      const startBal = runBal;
+      if(isFilled) runBal = endBal;
+
+      html += `<tr style="${isFilled?'':'opacity:0.6'}">
+        <td style="color:var(--text3);font-size:11px;font-weight:600;">${d}</td>
+        <td>
+          <input type="text" value="${row.trade_date||''}"
+            placeholder="Jul ${d}"
+            style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:4px 7px;font-size:12px;width:80px;font-family:var(--sans);"
+            onchange="updateChallenge(${d},'trade_date',this.value)">
+        </td>
+        <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${startBal}¢</td>
+        <td style="color:var(--gold);font-family:var(--mono);font-weight:600;">+${CHALLENGE_DAILY_TARGET}¢</td>
+        <td>
+          <input type="text" value="${row.trades||''}"
+            placeholder="W/W or W/L/W"
+            style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:4px 7px;font-size:12px;width:100px;font-family:var(--mono);"
+            onchange="updateChallenge(${d},'trades',this.value)">
+        </td>
+        <td>
+          <select onchange="updateChallenge(${d},'result',this.value)"
+            style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:4px 7px;font-size:12px;font-family:var(--sans);">
+            <option value="">—</option>
+            <option value="✅ Target Met" ${row.result==='✅ Target Met'?'selected':''}>✅ Target Met</option>
+            <option value="📈 Partial" ${row.result==='📈 Partial'?'selected':''}>📈 Partial</option>
+            <option value="🛑 Loss Day" ${row.result==='🛑 Loss Day'?'selected':''}>🛑 Loss Day</option>
+            <option value="⏸️ Rest Day" ${row.result==='⏸️ Rest Day'?'selected':''}>⏸️ Rest Day</option>
+          </select>
+        </td>
+        <td>
+          <input type="number" value="${row.ending_balance||''}"
+            placeholder="${startBal+CHALLENGE_DAILY_TARGET}"
+            style="background:var(--s3);border:1px solid ${isFilled?(targetMet?'var(--green)':'var(--red)'):'var(--border2)'};border-radius:5px;color:${isFilled?(targetMet?'var(--green)':'var(--red)'):'var(--text)'};padding:4px 7px;font-size:12px;width:80px;font-family:var(--mono);font-weight:600;"
+            onchange="updateChallenge(${d},'ending_balance',this.value)">
+          <span style="font-size:10px;color:var(--text3)">¢</span>
+        </td>
+        <td>
+          <input type="text" value="${row.notes||''}"
+            placeholder="Notes..."
+            style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:4px 7px;font-size:12px;width:140px;font-family:var(--sans);"
+            onchange="updateChallenge(${d},'notes',this.value)">
+        </td>
+        <td>
+          ${isFilled?'<span style="color:var(--green);font-size:14px">✓</span>':'<span style="color:var(--text3);font-size:11px">—</span>'}
+        </td>
+      </tr>`;
+    }
+
+    html += `</tbody></table></div></div>`;
+    document.getElementById('mainContent').innerHTML = html;
+  });
+}
+
+async function updateChallenge(dayNum, field, value){
+  try{
+    await saveChallengDay(dayNum, {[field]:value||null});
+    // Re-render to update balances
+    setTimeout(()=>renderChallenge(), 300);
+  }catch(e){
+    toast('Save failed: '+e.message,'error');
+  }
 }
 
 // ── INIT ──────────────────────────────────────────────────
