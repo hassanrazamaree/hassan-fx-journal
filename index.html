@@ -3,9 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080d18">
 <title>Hassan FX — Trading Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://idkfnshmbmajkoxixryw.supabase.co">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 :root {
   --bg:#080d18;--s1:#0e1523;--s2:#141d2e;--s3:#1a2440;
   --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
@@ -18,7 +22,8 @@
   --r:10px;--mono:'JetBrains Mono',monospace;--sans:'Inter',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased;text-rendering:optimizeSpeed;}
 
 .topbar{background:var(--s1);border-bottom:1px solid var(--border2);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200;gap:1rem;}
 .logo{display:flex;align-items:center;gap:10px;}
@@ -34,9 +39,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
 .sync-err{background:var(--red);}
 .sync-loading{background:var(--gold);animation:pulse 1s infinite;}
 
-.month-nav{display:flex;overflow-x:auto;gap:6px;padding:1rem 1.5rem;background:var(--s1);border-bottom:1px solid var(--border);scrollbar-width:none;position:sticky;top:56px;z-index:100;}
+.month-nav{display:flex;overflow-x:auto;gap:6px;padding:1rem 1.5rem;background:var(--s1);border-bottom:1px solid var(--border);scrollbar-width:none;position:sticky;top:56px;z-index:100;-webkit-overflow-scrolling:touch;}
 .month-nav::-webkit-scrollbar{display:none;}
-.mtab{flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap;font-family:var(--sans);}
+.mtab{flex-shrink:0;padding:6px 16px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-weight:500;transition:background-color .15s,color .15s,border-color .15s;white-space:nowrap;font-family:var(--sans);}
 .mtab:hover{border-color:var(--gold);color:var(--gold);}
 .mtab.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
 .mtab.has-data::after{content:'';width:5px;height:5px;background:var(--green);border-radius:50%;display:inline-block;margin-left:5px;vertical-align:middle;}
@@ -94,6 +99,8 @@ main{padding:1.5rem;max-width:1080px;margin:0 auto;}
 .add-section{background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;}
 .section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
 .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.edit-banner{background:var(--gold-dim);border:1px solid var(--gold);border-radius:8px;padding:8px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+.edit-banner span{font-size:12px;color:var(--gold);font-weight:600;}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;}
 .fg{display:flex;flex-direction:column;gap:5px;}
 .fg label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;}
@@ -101,7 +108,7 @@ main{padding:1.5rem;max-width:1080px;margin:0 auto;}
 .fg input:focus,.fg select:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-dim);}
 .fg select option{background:var(--s2);}
 .form-actions{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap;}
-.btn{padding:8px 20px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;font-family:var(--sans);}
+.btn{padding:9px 22px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:background-color .15s,color .15s;font-family:var(--sans);}
 .btn-gold{background:var(--gold);color:#000;}
 .btn-gold:hover{background:var(--gold2);}
 .btn-gold:disabled{opacity:.5;cursor:not-allowed;}
@@ -110,14 +117,15 @@ main{padding:1.5rem;max-width:1080px;margin:0 auto;}
 .rr-preview{font-size:12px;color:var(--text3);font-family:var(--mono);}
 
 .trades-wrap{background:var(--s2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-.tw-header{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.25rem;border-bottom:1px solid var(--border);}
+.tw-header{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.25rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
 .tw-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;}
 .tw-badge{font-size:11px;color:var(--text2);background:var(--s3);padding:3px 10px;border-radius:20px;}
-.tbl-wrap{overflow-x:auto;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;}
 thead th{padding:9px 12px;text-align:left;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:500;background:var(--s3);white-space:nowrap;}
-tbody tr{border-top:1px solid var(--border);transition:background .1s;}
+tbody tr{border-top:1px solid var(--border);transition:background-color .1s;}
 tbody tr:hover{background:rgba(255,255,255,.02);}
+tbody tr.editing-row{background:var(--gold-dim)!important;}
 tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle;white-space:nowrap;}
 .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;}
 .bw{background:var(--green-dim);color:var(--green);}
@@ -129,9 +137,13 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
 .sSR{background:var(--purple-dim);color:var(--purple);}
 .sEC{background:var(--green-dim);color:var(--green);}
 .sHF{background:var(--gold-dim);color:var(--gold);}
-.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:3px 7px;border-radius:5px;transition:all .15s;}
+.row-actions{display:flex;gap:3px;justify-content:center;}
+.edit-btn,.del-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:5px 9px;border-radius:5px;transition:background-color .15s,color .15s;}
+.edit-btn{color:var(--text3);}
+.edit-btn:hover{color:var(--blue);background:var(--blue-dim);}
+.del-btn{color:var(--text3);}
 .del-btn:hover{color:var(--red);background:var(--red-dim);}
-.del-btn:disabled{opacity:.3;cursor:not-allowed;}
+.edit-btn:disabled,.del-btn:disabled{opacity:.3;cursor:not-allowed;}
 .empty-row td{text-align:center;color:var(--text3);padding:3rem;font-size:13px;}
 .pnl-cell{font-family:var(--mono);font-weight:600;}
 .pnl-pos{color:var(--green);}
@@ -179,7 +191,7 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
 .phase-card-title{flex:1;}
 .pct-name{font-size:14px;font-weight:600;color:var(--text);}
 .pct-range{font-size:12px;color:var(--text2);margin-top:2px;}
-.phase-status-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:all .2s;}
+.phase-status-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:background-color .2s,color .2s;}
 .psb-done{background:var(--green-dim);color:var(--green);border-color:var(--green);}
 .psb-active{background:var(--gold-dim);color:var(--gold);border-color:var(--gold);}
 .psb-locked{background:var(--s3);color:var(--text3);}
@@ -215,28 +227,33 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* TOAST */
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:.75rem 1.25rem;font-size:13px;font-weight:500;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px;max-width:320px;}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;left:1.5rem;margin:0 auto;background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:.75rem 1.25rem;font-size:13px;font-weight:500;z-index:999;transform:translateY(100px);opacity:0;transition:transform .3s,opacity .3s;display:flex;align-items:center;gap:8px;max-width:320px;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.success{border-color:var(--green);}
 .toast.error{border-color:var(--red);}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .fade-in{animation:fadeIn .25s ease;}
+@media (prefers-reduced-motion:reduce){
+  .fade-in{animation:none;}
+  .lt-dot,.sync-loading{animation:none;}
+  html{scroll-behavior:auto;}
+}
 
-/* GOLDEN RULES FIX */
+/* GOLDEN RULES */
 .rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:.75rem;}
 .rule-item{background:var(--s3);border-radius:8px;padding:10px 12px;}
 .rule-num{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
 .rule-text{font-size:12px;color:var(--text);line-height:1.5;word-break:break-word;}
 
 /* PDF BUTTON */
-.pdf-btn{padding:8px 18px;border-radius:7px;border:1px solid var(--green);background:var(--green-dim);color:var(--green);cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;font-family:var(--sans);display:inline-flex;align-items:center;gap:6px;}
+.pdf-btn{padding:8px 18px;border-radius:7px;border:1px solid var(--green);background:var(--green-dim);color:var(--green);cursor:pointer;font-size:13px;font-weight:600;transition:background-color .15s,color .15s;font-family:var(--sans);display:inline-flex;align-items:center;gap:6px;}
 .pdf-btn:hover{background:var(--green);color:#000;}
 
 /* PDF PRINT STYLES */
 @media print {
   body{background:#fff!important;color:#000!important;}
-  .topbar,.month-nav,.add-section,.del-btn,.pdf-btn,.live-ticker,.pdf-section-hide{display:none!important;}
+  .topbar,.month-nav,.add-section,.row-actions,.pdf-btn,.live-ticker,.pdf-section-hide{display:none!important;}
   main{padding:0 1rem!important;max-width:100%!important;}
   .month-hero{background:#f8f9fa!important;border:1px solid #ddd!important;break-inside:avoid;color:#000!important;}
   .mh-month,.mh-title,.mh-sub,.mh-bal-lbl{color:#333!important;}
@@ -254,6 +271,7 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
   .trades-wrap{break-inside:auto;}
   thead th{background:#f0f0f0!important;color:#333!important;}
   tbody td{color:#000!important;white-space:normal!important;word-break:break-word!important;vertical-align:top!important;padding:8px!important;}
+  tbody tr.editing-row{background:#fff!important;}
   .pnl-pos{color:#16a34a!important;}
   .pnl-neg{color:#dc2626!important;}
   .bw{background:#dcfce7!important;color:#16a34a!important;}
@@ -278,6 +296,7 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
   .form-grid{grid-template-columns:1fr 1fr;}
   .honda-card{flex-direction:column;}
   .honda-img{width:100%;height:150px;}
+  .toast{left:1rem;right:1rem;max-width:none;}
 }
 </style>
 </head>
@@ -389,10 +408,12 @@ const HONDA_IMG='https://graficsea.com/wp-content/uploads/2022/02/Honda-CG-125-E
 
 // ── STATE ─────────────────────────────────────────────────
 // activePhase: 0=demo, 1-4=phase num
-// cur: -2=phase plan, -1=overview, 0..N=month index
+// cur: -3=$30 challenge, -2=phase plan, -1=overview, 0..N=month index
 let allTrades = [];
 let activePhase = 0; // 0 = demo
 let cur = 0;
+let editingTradeId = null;   // id of trade currently being edited (or null)
+let challengeData = null;    // cached challenge_days map
 
 function getActivePhasemonths(){
   if(activePhase === 0) return DEMO_MONTHS.map((d,i)=>({l:d.l, full:d.full, s:null, t:null, isDemo:true, idx:i}));
@@ -406,6 +427,8 @@ function getMonthDbNum(monthIdx){
   return activePhase*100 + monthIdx+1;
 }
 
+function todayISO(){ return new Date().toISOString().split('T')[0]; }
+
 // ── SUPABASE ──────────────────────────────────────────────
 async function sbFetch(){
   const res=await fetch(`${SB_URL}/rest/v1/journal_trades?select=*&order=created_at.asc`,{headers:HEADERS});
@@ -415,6 +438,14 @@ async function sbFetch(){
 async function sbInsert(trade){
   const res=await fetch(`${SB_URL}/rest/v1/journal_trades`,{
     method:'POST',headers:{...HEADERS,'Prefer':'return=representation'},
+    body:JSON.stringify(trade)
+  });
+  if(!res.ok){const e=await res.text();throw new Error(e);}
+  return await res.json();
+}
+async function sbUpdate(id, trade){
+  const res=await fetch(`${SB_URL}/rest/v1/journal_trades?id=eq.${id}`,{
+    method:'PATCH',headers:{...HEADERS,'Prefer':'return=representation'},
     body:JSON.stringify(trade)
   });
   if(!res.ok){const e=await res.text();throw new Error(e);}
@@ -445,7 +476,7 @@ function demoBalance(monthIdx){
 }
 
 function realBalance(phaseIdx, monthIdx){
-  const num=getMonthDbNum(monthIdx);
+  const num=(phaseIdx+1)*100 + monthIdx+1;
   const s=PHASE_PLAN[phaseIdx].monthTargets[monthIdx].s;
   return s + tradesForMonthNum(num).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
 }
@@ -454,8 +485,31 @@ function globalDemoBalance(){
   return allTrades.filter(t=>t.month_num<0).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
 }
 
-function globalRealBalance(){
-  return 100 + allTrades.filter(t=>t.month_num>0).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+// Each phase is its own self-contained capital pool (start → target),
+// since capital is withdrawn/reset between phases. A phase's balance is
+// ALWAYS its own start + the pnl of its own months — independent of
+// which phase the user currently has open.
+function phaseBalance(phaseNum){
+  const ph=PHASE_PLAN[phaseNum-1];
+  const lo=phaseNum*100+1, hi=phaseNum*100+ph.monthTargets.length;
+  const sum=allTrades.filter(t=>t.month_num>=lo && t.month_num<=hi).reduce((a,t)=>a+parseFloat(t.pnl||0),0);
+  return ph.start + sum;
+}
+function isPhaseDone(phaseNum){
+  return phaseBalance(phaseNum) >= PHASE_PLAN[phaseNum-1].target;
+}
+// Overall $100 → $10,000 journey progress: each phase = 25% of the bar.
+function overallProgressPct(){
+  let pct=0;
+  for(let i=1;i<=4;i++){
+    const ph=PHASE_PLAN[i-1];
+    const bal=phaseBalance(i);
+    if(bal>=ph.target){ pct+=25; continue; }
+    const frac=Math.max(0,Math.min(1,(bal-ph.start)/(ph.target-ph.start)));
+    pct+=frac*25;
+    break;
+  }
+  return Math.min(100,pct);
 }
 
 function stats(arr){
@@ -469,20 +523,24 @@ function stats(arr){
 }
 
 // ── TOAST ─────────────────────────────────────────────────
+let toastTimer=null;
 function toast(msg,type='success'){
   const el=document.getElementById('toast');
   el.innerHTML=(type==='success'?'<span style="color:var(--green)">✓</span> ':'<span style="color:var(--red)">✕</span> ')+msg;
   el.className='toast show '+type;
-  setTimeout(()=>{el.className='toast';},3000);
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{el.className='toast';},3000);
 }
 
 // ── TOPBAR ────────────────────────────────────────────────
 function updateTopbar(){
   const isDemo=activePhase===0;
-  const bal=isDemo?globalDemoBalance():globalRealBalance();
-  const allPhTrades=isDemo?allTrades.filter(t=>t.month_num<0):allTrades.filter(t=>t.month_num>0);
+  const ph=isDemo?null:PHASE_PLAN[activePhase-1];
+  const bal=isDemo?globalDemoBalance():phaseBalance(activePhase);
+  const lo=isDemo?null:activePhase*100+1, hi=isDemo?null:activePhase*100+ph.monthTargets.length;
+  const allPhTrades=isDemo?allTrades.filter(t=>t.month_num<0):allTrades.filter(t=>t.month_num>=lo && t.month_num<=hi);
   const gs=stats(allPhTrades);
-  const phLabel=isDemo?'Demo Phase · July–December 2026':`Phase ${activePhase} · ${PHASE_PLAN[activePhase-1].timeline}`;
+  const phLabel=isDemo?'Demo Phase · July–December 2026':`Phase ${activePhase} · ${ph.timeline}`;
   document.getElementById('tb-balance').textContent='$'+bal.toFixed(2);
   document.getElementById('tb-balance').style.color=bal>=0?'var(--gold)':'var(--red)';
   document.getElementById('tb-wr').textContent=gs.closed>0?gs.wr+'%':'—';
@@ -491,6 +549,12 @@ function updateTopbar(){
 }
 
 // ── TABS ──────────────────────────────────────────────────
+function goTo(newCur){
+  cur=newCur;
+  editingTradeId=null;
+  renderPage();
+}
+
 function renderTabs(){
   const nav=document.getElementById('monthNav');
   nav.innerHTML='';
@@ -499,14 +563,14 @@ function renderTabs(){
   const ov=document.createElement('button');
   ov.className='mtab'+(cur===-1?' active':'');
   ov.textContent='Overview';
-  ov.onclick=()=>{cur=-1;renderPage();};
+  ov.onclick=()=>goTo(-1);
   nav.appendChild(ov);
 
   // Phase Plan
   const pp=document.createElement('button');
   pp.className='mtab phase-tab'+(cur===-2?' active':'');
   pp.textContent='🗺️ Phase Plan';
-  pp.onclick=()=>{cur=-2;renderPage();};
+  pp.onclick=()=>goTo(-2);
   nav.appendChild(pp);
 
   // $30 Challenge tab
@@ -516,7 +580,7 @@ function renderTabs(){
   ch.style.color=cur===-3?'#000':'var(--green)';
   ch.style.background=cur===-3?'var(--green)':'transparent';
   ch.textContent='💰 $30 Challenge';
-  ch.onclick=()=>{cur=-3;renderPage();};
+  ch.onclick=()=>goTo(-3);
   nav.appendChild(ch);
 
   // Month tabs based on activePhase
@@ -534,9 +598,62 @@ function renderTabs(){
     const isDemo=m.isDemo;
     btn.className='mtab'+(isDemo?' demo-tab':'')+(cur===i?' active':'')+(hasTrades?' has-data':'')+doneClass;
     btn.textContent=m.l;
-    btn.onclick=()=>{cur=i;renderPage();};
+    btn.onclick=()=>goTo(i);
     nav.appendChild(btn);
   });
+}
+
+// ── SHARED TRADE FORM (Add / Edit) — used by Demo + every Phase ──
+function renderTradeForm(monthNum, sectionLabel, saveBtnLabel){
+  const et = editingTradeId!=null ? allTrades.find(t=>t.id===editingTradeId) : null;
+  const isEditing = !!(et && et.month_num===monthNum);
+  const e = isEditing ? et : null;
+
+  const editBanner = isEditing ? `
+    <div class="edit-banner">
+      <span>✏️ Editing trade — ${e.pair} · ${e.trade_date||'—'} · ${e.result}</span>
+      <button class="btn btn-ghost" style="padding:4px 12px;font-size:11px;" onclick="cancelEdit()">✕ Cancel Edit</button>
+    </div>` : '';
+
+  return `
+  <div class="add-section fade-in">
+    <div class="section-title">${isEditing?'Edit Trade':sectionLabel}</div>
+    ${editBanner}
+    <div class="form-grid">
+      <div class="fg"><label>Date</label><input type="date" id="f-date" value="${isEditing?(e.trade_date||todayISO()):todayISO()}"></div>
+      <div class="fg"><label>Pair</label><select id="f-pair">${PAIRS.map(p=>`<option ${isEditing&&e.pair===p?'selected':''}>${p}</option>`).join('')}</select></div>
+      <div class="fg"><label>Direction</label><select id="f-dir">
+        <option value="BUY" ${isEditing&&e.direction==='BUY'?'selected':''}>↑ BUY</option>
+        <option value="SELL" ${isEditing&&e.direction==='SELL'?'selected':''}>↓ SELL</option>
+      </select></div>
+      <div class="fg"><label>Entry</label><input type="number" id="f-entry" placeholder="2345.50" step="0.01" value="${isEditing&&e.entry_price!=null?e.entry_price:''}" oninput="previewRR()"></div>
+      <div class="fg"><label>Stop Loss</label><input type="number" id="f-sl" placeholder="2340.00" step="0.01" value="${isEditing&&e.sl!=null?e.sl:''}" oninput="previewRR()"></div>
+      <div class="fg"><label>Take Profit</label><input type="number" id="f-tp" placeholder="2360.00" step="0.01" value="${isEditing&&e.tp!=null?e.tp:''}" oninput="previewRR()"></div>
+      <div class="fg"><label>Result</label><select id="f-result" onchange="onResultChange()">
+        <option value="Win" ${isEditing&&e.result==='Win'?'selected':''}>✓ Win</option>
+        <option value="Loss" ${isEditing&&e.result==='Loss'?'selected':''}>✗ Loss</option>
+        <option value="BE" ${isEditing&&e.result==='BE'?'selected':''}>⟳ Break Even</option>
+        <option value="Open" ${isEditing&&e.result==='Open'?'selected':''}>⏳ Open</option>
+      </select></div>
+      <div class="fg"><label>P&L ($)</label><input type="number" id="f-pnl" placeholder="+15.50 or -8.20" step="0.01" value="${isEditing&&e.pnl!=null?e.pnl:''}" oninput="onPnlInput()"></div>
+      <div class="fg"><label>Source</label><select id="f-src">${SRCS.map(s=>`<option ${isEditing&&e.source===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="fg"><label>RR Ratio</label><input type="text" id="f-rr" placeholder="1:3" value="${isEditing&&e.rr_ratio?e.rr_ratio:''}"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Notes</label><input type="text" id="f-notes" placeholder="ICT OB + FVG, London session..." value="${isEditing&&e.notes?String(e.notes).replace(/"/g,'&quot;'):''}"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" id="add-btn" onclick="submitTrade(${monthNum})">${isEditing?'✓ Update Trade':saveBtnLabel}</button>
+      <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+      ${isEditing?'<button class="btn btn-ghost" onclick="cancelEdit()">✕ Cancel Edit</button>':''}
+      <span class="rr-preview" id="rr-preview"></span>
+    </div>
+  </div>`;
+}
+
+function tradeRowActions(id){
+  return '<td class="pdf-section-hide"><div class="row-actions">'
+    +'<button class="edit-btn" title="Edit trade" onclick="editTrade('+id+')">✎</button>'
+    +'<button class="del-btn" title="Delete trade" onclick="removeTrade('+id+',this)">✕</button>'
+    +'</div></td>';
 }
 
 // ── DEMO MONTH VIEW ───────────────────────────────────────
@@ -578,29 +695,8 @@ function renderDemoMonth(idx){
     <div class="scard ${totalPnl>=0?'green':'red'}"><div class="sc-lbl">Month P&L</div><div class="sc-val ${totalPnl>=0?'green':'red'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)}</div></div>
   </div>
 
-  <div class="add-section fade-in">
-    <div class="section-title">Add Demo Trade — ${dm.full}</div>
-    <div class="form-grid">
-      <div class="fg"><label>Date</label><input type="date" id="f-date" value="${new Date().toISOString().split('T')[0]}"></div>
-      <div class="fg"><label>Pair</label><select id="f-pair">${PAIRS.map(p=>`<option>${p}</option>`).join('')}</select></div>
-      <div class="fg"><label>Direction</label><select id="f-dir"><option value="BUY">↑ BUY</option><option value="SELL">↓ SELL</option></select></div>
-      <div class="fg"><label>Entry</label><input type="number" id="f-entry" placeholder="2345.50" step="0.01" oninput="previewRR()"></div>
-      <div class="fg"><label>Stop Loss</label><input type="number" id="f-sl" placeholder="2340.00" step="0.01" oninput="previewRR()"></div>
-      <div class="fg"><label>Take Profit</label><input type="number" id="f-tp" placeholder="2360.00" step="0.01" oninput="previewRR()"></div>
-      <div class="fg"><label>Result</label><select id="f-result" onchange="onResultChange()"><option value="Win">✓ Win</option><option value="Loss">✗ Loss</option><option value="BE">⟳ Break Even</option><option value="Open">⏳ Open</option></select></div>
-      <div class="fg"><label>P&L ($)</label><input type="number" id="f-pnl" placeholder="+15.50 or -8.20" step="0.01" oninput="onPnlInput()"></div>
-      <div class="fg"><label>Source</label><select id="f-src">${SRCS.map(s=>`<option>${s}</option>`).join('')}</select></div>
-      <div class="fg"><label>RR Ratio</label><input type="text" id="f-rr" placeholder="1:3"></div>
-      <div class="fg" style="grid-column:1/-1"><label>Notes</label><input type="text" id="f-notes" placeholder="ICT OB + FVG, London session..."></div>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-gold" id="add-btn" onclick="submitTrade(${num})">+ Save Demo Trade</button>
-      <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
-      <span class="rr-preview" id="rr-preview"></span>
-    </div>
-  </div>`;
+  ${renderTradeForm(num, 'Add Demo Trade — '+dm.full, '+ Save Demo Trade')}`;
 
-  // Demo: PDF button always show if trades exist, no goal needed
   const demoStartDate = arr.length>0 ? arr[0].trade_date : null;
   const demoPdfBanner = arr.length>0
     ? '<div class="pdf-goal-banner" style="display:none;">Demo Phase · '+dm.full+' · Trades: '+arr.length+' · Total P&L: '+(totalPnl>=0?'+':'')+'$'+totalPnl.toFixed(2)+' · Started: '+(demoStartDate||'—')+'</div>'
@@ -627,7 +723,7 @@ function renderDemoMonth(idx){
       const pnl=parseFloat(t.pnl||0);
       const bc=t.result==='Win'?'bw':t.result==='Loss'?'bl':t.result==='BE'?'bb':'bo';
       const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
-      html+=`<tr>
+      html+=`<tr class="${t.id===editingTradeId?'editing-row':''}">
         <td style="color:var(--text3);font-size:11px">${i+1}</td>
         <td style="color:var(--text2);white-space:nowrap">${t.trade_date||'—'}</td>
         <td style="font-weight:600;white-space:nowrap">${t.pair}</td>
@@ -640,7 +736,7 @@ function renderDemoMonth(idx){
         <td><span class="src s${t.source}">${t.source}</span></td>
         <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.rr_ratio||'—'}</td>
         <td style="color:var(--text2);min-width:140px;max-width:220px;white-space:normal;word-break:break-word;line-height:1.5;font-size:12px;padding:8px 12px">${t.notes||'—'}</td>
-        <td class="pdf-section-hide"><button class="del-btn" onclick="removeTrade(${t.id})">✕</button></td>
+        ${tradeRowActions(t.id)}
       </tr>`;
     });
   }
@@ -707,29 +803,8 @@ function renderMonth(monthIdx){
     <div class="scard ${goalDone?'green':'red'}"><div class="sc-lbl">To Target</div><div class="sc-val ${goalDone?'green':'red'}">${goalDone?'Done!':'$'+(info.t-bal).toFixed(2)}</div><div class="sc-sub">${goalDone?'✓ Achieved':'Remaining'}</div></div>
   </div>
 
-  <div class="add-section fade-in">
-    <div class="section-title">Add Trade — Phase ${activePhase} ${info.l}</div>
-    <div class="form-grid">
-      <div class="fg"><label>Date</label><input type="date" id="f-date" value="${new Date().toISOString().split('T')[0]}"></div>
-      <div class="fg"><label>Pair</label><select id="f-pair">${PAIRS.map(p=>`<option>${p}</option>`).join('')}</select></div>
-      <div class="fg"><label>Direction</label><select id="f-dir"><option value="BUY">↑ BUY</option><option value="SELL">↓ SELL</option></select></div>
-      <div class="fg"><label>Entry</label><input type="number" id="f-entry" placeholder="2345.50" step="0.01" oninput="previewRR()"></div>
-      <div class="fg"><label>Stop Loss</label><input type="number" id="f-sl" placeholder="2340.00" step="0.01" oninput="previewRR()"></div>
-      <div class="fg"><label>Take Profit</label><input type="number" id="f-tp" placeholder="2360.00" step="0.01" oninput="previewRR()"></div>
-      <div class="fg"><label>Result</label><select id="f-result" onchange="onResultChange()"><option value="Win">✓ Win</option><option value="Loss">✗ Loss</option><option value="BE">⟳ Break Even</option><option value="Open">⏳ Open</option></select></div>
-      <div class="fg"><label>P&L ($)</label><input type="number" id="f-pnl" placeholder="+15.50 or -8.20" step="0.01" oninput="onPnlInput()"></div>
-      <div class="fg"><label>Source</label><select id="f-src">${SRCS.map(s=>`<option>${s}</option>`).join('')}</select></div>
-      <div class="fg"><label>RR Ratio</label><input type="text" id="f-rr" placeholder="1:3"></div>
-      <div class="fg" style="grid-column:1/-1"><label>Notes</label><input type="text" id="f-notes" placeholder="ICT OB + FVG, London session..."></div>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-gold" id="add-btn" onclick="submitTrade(${num})">+ Save to Supabase</button>
-      <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
-      <span class="rr-preview" id="rr-preview"></span>
-    </div>
-  </div>
+  ${renderTradeForm(num, 'Add Trade — Phase '+activePhase+' '+info.l, '+ Save to Supabase')}`;
 
-  // ── Goal complete date detection ──
   let goalCompleteDate = null;
   let goalStartDate = null;
   if(arr.length > 0){
@@ -748,6 +823,7 @@ function renderMonth(monthIdx){
 
   html += goalBannerHtml;
   html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+info.l+'</div><div style="display:flex;align-items:center;gap:8px;"><span class="tw-badge">'+arr.length+' trades</span>'+(goalDone ? '<button class="pdf-btn" onclick="downloadPDF(\'phase'+activePhase+'_month'+(monthIdx+1)+'\')">⬇ Download PDF</button>' : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">PDF unlocks on goal ✓</span>')+'</div></div>';
+  html += `
     <div class="tbl-wrap">
       <table>
         <thead><tr>
@@ -765,7 +841,7 @@ function renderMonth(monthIdx){
       const pnl=parseFloat(t.pnl||0);
       const bc=t.result==='Win'?'bw':t.result==='Loss'?'bl':t.result==='BE'?'bb':'bo';
       const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
-      html+=`<tr>
+      html+=`<tr class="${t.id===editingTradeId?'editing-row':''}">
         <td style="color:var(--text3);font-size:11px">${i+1}</td>
         <td style="color:var(--text2);white-space:nowrap">${t.trade_date||'—'}</td>
         <td style="font-weight:600;white-space:nowrap">${t.pair}</td>
@@ -779,7 +855,7 @@ function renderMonth(monthIdx){
         <td><span class="src s${t.source}">${t.source}</span></td>
         <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.rr_ratio||'—'}</td>
         <td style="color:var(--text2);min-width:140px;max-width:220px;white-space:normal;word-break:break-word;line-height:1.5;font-size:12px;padding:8px 12px">${t.notes||'—'}</td>
-        <td class="pdf-section-hide"><button class="del-btn" onclick="removeTrade(${t.id})">✕</button></td>
+        ${tradeRowActions(t.id)}
       </tr>`;
     });
   }
@@ -791,15 +867,15 @@ function renderMonth(monthIdx){
 function renderOverview(){
   const isDemo=activePhase===0;
   const demoBal=globalDemoBalance();
-  const realBal=globalRealBalance();
+  const curBal = isDemo?demoBal:phaseBalance(activePhase);
   const allPhaseTrades=allTrades.filter(t=>t.month_num>0);
   const gs=stats(allPhaseTrades);
-  const totalProg=Math.min(100,((realBal-100)/9900)*100);
+  const totalProg=overallProgressPct();
 
   let html=`
   <div class="overall-goal fade-in">
-    <div class="og-label">${isDemo?'Demo Phase Running':'Real Trading Journey'}</div>
-    <div class="og-val">${isDemo?'$'+demoBal.toFixed(2):'$'+realBal.toFixed(2)}</div>
+    <div class="og-label">${isDemo?'Demo Phase Running':'Phase '+activePhase+' — Live Balance'}</div>
+    <div class="og-val">$${curBal.toFixed(2)}</div>
     <div class="og-sub">${isDemo?'Demo · July–December 2026 · Confidence Building':'$100 → $10,000 Real Journey · '+totalProg.toFixed(1)+'% complete'}</div>
   </div>
   <div class="stats-row fade-in">
@@ -882,14 +958,8 @@ function renderOverview(){
 
 // ── PHASE PLAN ────────────────────────────────────────────
 function renderPhasePlan(){
-  const realBal=globalRealBalance();
-  let curPhase=1;
-  if(realBal>=500) curPhase=2;
-  if(realBal>=1000) curPhase=3;
-  if(realBal>=5000) curPhase=4;
-
-  const phase3Progress = activePhase===3 ? Math.min(100,((realBal-500)/4500*100)) : (activePhase>3?100:0);
-  const hondaUnlocked = realBal>=5000;
+  const phase3Progress = Math.max(0,Math.min(100,((phaseBalance(3)-500)/4500)*100));
+  const hondaUnlocked = isPhaseDone(3);
 
   let html=`
   <div class="phase-header fade-in">
@@ -925,7 +995,7 @@ function renderPhasePlan(){
 
   PHASE_PLAN.forEach((ph,idx)=>{
     const isActive=activePhase===ph.num;
-    const isDone=realBal>=(idx===0?500:idx===1?1000:idx===2?5000:10000);
+    const isDone=isPhaseDone(ph.num);
     const cardClass=isDone?'completed-phase':isActive?'active-phase':'locked-phase';
     const numClass=isDone?'pn-done':isActive?'pn-active':'pn-locked';
     const statusLabel=isActive?'▶ Active':isDone?'✓ Complete':'Activate';
@@ -969,7 +1039,7 @@ function renderPhasePlan(){
     if(ph.honda){
       html+=`
       <div class="honda-card ${hondaUnlocked?'':'locked'} fade-in">
-        <img class="honda-img" src="${HONDA_IMG}" alt="Honda CG 125" onerror="this.style.display='none'">
+        <img class="honda-img" src="${HONDA_IMG}" alt="Honda CG 125" loading="lazy" onerror="this.style.display='none'">
         <div class="honda-info">
           <div class="honda-title">🏍️ Honda CG 125 — Dream Reward</div>
           <div class="honda-sub">Phase 3 complete hone pe unlock hoga — $5,000 target achieve karo!</div>
@@ -984,9 +1054,9 @@ function renderPhasePlan(){
       </div>`;
     }
 
-    // FTMO $25K after Phase 2 — sirf tab unlock ho jab realBal >= 1000 (Phase 2 complete)
+    // FTMO $25K after Phase 2 — unlock when Phase 2's own target ($1,000) is hit
     if(ph.ftmo){
-      const ftmo25Unlocked = realBal >= 1000;
+      const ftmo25Unlocked = isPhaseDone(2);
       html+=`
       <div class="phase-card fade-in" style="border-color:${ftmo25Unlocked?'var(--blue)':'var(--border2)'};margin-bottom:0;${ftmo25Unlocked?'':'opacity:.6'}">
         <div class="phase-card-header">
@@ -1019,9 +1089,9 @@ function renderPhasePlan(){
       </div>`;
     }
 
-    // FTMO $100K — always show (locked/unlocked)
+    // FTMO $100K — always show (locked/unlocked), tied to Phase 3's own target ($5,000)
     if(ph.honda){
-      const f100Unlocked=realBal>=5000;
+      const f100Unlocked=isPhaseDone(3);
       html+=`
       <div class="phase-card fade-in" style="border-color:${f100Unlocked?'var(--green)':'var(--border2)'};margin-bottom:0;${f100Unlocked?'':'opacity:.6'}">
         <div class="phase-card-header">
@@ -1057,7 +1127,7 @@ function renderPhasePlan(){
       <span class="prog-pct" style="color:var(--gold)">Phase ${activePhase===0?'Demo':activePhase} Active</span>
     </div>
     <div class="prog-track">
-      <div class="prog-fill" style="width:${Math.min(100,((realBal-100)/9900)*100)}%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></div>
+      <div class="prog-fill" style="width:${overallProgressPct()}%;background:linear-gradient(90deg,var(--gold),var(--gold2))"></div>
     </div>
     <div class="prog-milestones">
       <span class="prog-m">$100</span>
@@ -1068,7 +1138,7 @@ function renderPhasePlan(){
     </div>
   </div>
 
-  <!-- GOLDEN RULES — FIXED -->
+  <!-- GOLDEN RULES -->
   <div class="phase-card fade-in" style="border-color:var(--red);">
     <div class="phase-card-header">
       <div class="phase-num" style="background:var(--red);color:#fff">⚡</div>
@@ -1094,13 +1164,11 @@ function renderPhasePlan(){
 
 // ── PDF DOWNLOAD ──────────────────────────────────────────
 function downloadPDF(filename){
-  // Show hidden print-only elements
   document.querySelectorAll('.pdf-goal-banner').forEach(el=>el.style.display='block');
   const oldTitle = document.title;
   document.title = 'Hassan FX — ' + filename;
   window.print();
   document.title = oldTitle;
-  // Hide again after print dialog
   setTimeout(()=>{
     document.querySelectorAll('.pdf-goal-banner').forEach(el=>el.style.display='none');
   }, 1000);
@@ -1110,6 +1178,7 @@ function downloadPDF(filename){
 function switchPhase(phNum){
   activePhase=phNum;
   cur=0;
+  editingTradeId=null;
   renderPage();
   toast(phNum===0?'Demo Phase active!':'Phase '+phNum+' active — tabs updated!');
 }
@@ -1164,21 +1233,42 @@ function clearForm(){
     const el=document.getElementById(id);
     if(el) el.value='';
   });
+  const pairEl=document.getElementById('f-pair'); if(pairEl) pairEl.selectedIndex=0;
+  const dirEl=document.getElementById('f-dir'); if(dirEl) dirEl.selectedIndex=0;
+  const resEl=document.getElementById('f-result'); if(resEl) resEl.selectedIndex=0;
+  const srcEl=document.getElementById('f-src'); if(srcEl) srcEl.selectedIndex=0;
+  const dateEl=document.getElementById('f-date'); if(dateEl) dateEl.value=todayISO();
   const rp=document.getElementById('rr-preview');
   if(rp) rp.textContent='';
 }
 
-// ── SUBMIT — BUG 3 FIXED ──────────────────────────────────
+// ── EDIT / CANCEL EDIT ────────────────────────────────────
+function editTrade(id){
+  const t=allTrades.find(x=>x.id===id);
+  if(!t){ toast('Trade not found','error'); return; }
+  editingTradeId=id;
+  renderPage();
+  setTimeout(()=>{
+    document.querySelector('.add-section')?.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 50);
+}
+
+function cancelEdit(){
+  editingTradeId=null;
+  renderPage();
+}
+
+// ── SUBMIT (handles both Add + Update) ───────────────────
 async function submitTrade(monthNum){
   const pnlEl=document.getElementById('f-pnl');
   const pnlVal=pnlEl?pnlEl.value.trim():'';
-  // FIX: proper empty check
   if(pnlVal===''){ toast('P&L amount required!','error'); return; }
   const pnlNum=parseFloat(pnlVal);
   if(isNaN(pnlNum)){ toast('P&L must be a number!','error'); return; }
 
+  const isEditing=editingTradeId!=null;
   const btn=document.getElementById('add-btn');
-  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  if(btn){btn.disabled=true;btn.textContent=isEditing?'Updating...':'Saving...';}
 
   const trade={
     month_num: monthNum,
@@ -1196,30 +1286,38 @@ async function submitTrade(monthNum){
   };
 
   try{
-    const inserted=await sbInsert(trade);
-    allTrades.push(inserted[0]);
-    toast(`✓ Saved! PnL: ${pnlNum>=0?'+':''}$${pnlNum.toFixed(2)}`);
+    if(isEditing){
+      const updated=await sbUpdate(editingTradeId, trade);
+      const idx=allTrades.findIndex(t=>t.id===editingTradeId);
+      if(idx>-1) allTrades[idx]=updated[0];
+      toast(`✓ Trade updated! PnL: ${pnlNum>=0?'+':''}$${pnlNum.toFixed(2)}`);
+      editingTradeId=null;
+    } else {
+      const inserted=await sbInsert(trade);
+      allTrades.push(inserted[0]);
+      toast(`✓ Saved! PnL: ${pnlNum>=0?'+':''}$${pnlNum.toFixed(2)}`);
+    }
     clearForm();
     renderPage();
   } catch(e){
-    toast('Save failed: '+e.message,'error');
-    if(btn){btn.disabled=false;btn.textContent='+ Save to Supabase';}
+    toast((isEditing?'Update failed: ':'Save failed: ')+e.message,'error');
+    if(btn){btn.disabled=false;btn.textContent=isEditing?'✓ Update Trade':'+ Save to Supabase';}
   }
 }
 
 // ── DELETE ────────────────────────────────────────────────
-async function removeTrade(id){
+async function removeTrade(id, btn){
   if(!confirm('Delete this trade?')) return;
-  const btn=event.target;
-  btn.disabled=true;
+  if(btn) btn.disabled=true;
   try{
     await sbDelete(id);
     allTrades=allTrades.filter(t=>t.id!==id);
+    if(editingTradeId===id){ editingTradeId=null; }
     toast('Trade deleted','error');
     renderPage();
   } catch(e){
-    toast('Delete failed','error');
-    btn.disabled=false;
+    toast('Delete failed: '+e.message,'error');
+    if(btn) btn.disabled=false;
   }
 }
 
@@ -1234,25 +1332,26 @@ function renderPage(){
   else renderMonth(cur);
 }
 
-// ── $30 CHALLENGE ────────────────────────────────────────
+// ── $30 CHALLENGE ─────────────────────────────────────────
 const CHALLENGE_DAYS = 30;
 const CHALLENGE_START = 3000; // cents
 const CHALLENGE_TARGET = 10000; // cents
 const CHALLENGE_DAILY_TARGET = 500; // cents
 
-async function loadChallengeData(){
+async function loadChallengeData(force){
+  if(challengeData && !force) return challengeData;
   try{
     const res = await fetch(`${SB_URL}/rest/v1/challenge_days?select=*&order=day_num.asc`,{headers:HEADERS});
-    if(!res.ok) return {};
+    if(!res.ok){ challengeData={}; return challengeData; }
     const rows = await res.json();
     const map = {};
     rows.forEach(r=>{ map[r.day_num]=r; });
+    challengeData = map;
     return map;
-  }catch(e){ return {}; }
+  }catch(e){ challengeData={}; return challengeData; }
 }
 
 async function saveChallengDay(dayNum, data){
-  // Upsert
   const res = await fetch(`${SB_URL}/rest/v1/challenge_days`, {
     method:'POST',
     headers:{...HEADERS,'Prefer':'resolution=merge-duplicates,return=representation'},
@@ -1262,132 +1361,135 @@ async function saveChallengDay(dayNum, data){
   return await res.json();
 }
 
-function renderChallenge(){
-  loadChallengeData().then(data=>{
-    const totalFilled = Object.values(data).filter(r=>r.ending_balance).length;
-    const lastBal = totalFilled>0
-      ? Math.max(...Object.values(data).filter(r=>r.ending_balance).map(r=>parseFloat(r.ending_balance)))
-      : CHALLENGE_START;
-    const prog = Math.min(100,((lastBal-CHALLENGE_START)/(CHALLENGE_TARGET-CHALLENGE_START))*100);
-    const done = lastBal >= CHALLENGE_TARGET;
+async function renderChallenge(){
+  const loadingHtml='<div class="loading-overlay"><div class="spinner"></div> Loading challenge data...</div>';
+  if(!challengeData) document.getElementById('mainContent').innerHTML=loadingHtml;
+  const data = await loadChallengeData();
 
-    let html = `
-    <div class="phase-header fade-in" style="border-color:var(--green);background:linear-gradient(135deg,#001a0e,#0e1523);">
-      <h2 style="color:var(--green)">💰 $30 → $100 Challenge</h2>
-      <p>3000¢ se 10000¢ tak · Daily Target: +500¢ · Max 3 trades/day</p>
-      <div class="current-badge" style="background:var(--green);color:#000;">
-        ${done?'🎯 CHALLENGE COMPLETE!':'Day '+totalFilled+' of '+CHALLENGE_DAYS+' · '+prog.toFixed(1)+'% complete'}
-      </div>
+  const totalFilled = Object.values(data).filter(r=>r.ending_balance).length;
+  const lastBal = totalFilled>0
+    ? Math.max(...Object.values(data).filter(r=>r.ending_balance).map(r=>parseFloat(r.ending_balance)))
+    : CHALLENGE_START;
+  const prog = Math.min(100,((lastBal-CHALLENGE_START)/(CHALLENGE_TARGET-CHALLENGE_START))*100);
+  const done = lastBal >= CHALLENGE_TARGET;
+
+  let html = `
+  <div class="phase-header fade-in" style="border-color:var(--green);background:linear-gradient(135deg,#001a0e,#0e1523);">
+    <h2 style="color:var(--green)">💰 $30 → $100 Challenge</h2>
+    <p>3000¢ se 10000¢ tak · Daily Target: +500¢ · Max 3 trades/day</p>
+    <div class="current-badge" style="background:var(--green);color:#000;">
+      ${done?'🎯 CHALLENGE COMPLETE!':'Day '+totalFilled+' of '+CHALLENGE_DAYS+' · '+prog.toFixed(1)+'% complete'}
     </div>
+  </div>
 
-    <div class="prog-wrap fade-in">
-      <div class="prog-top">
-        <span class="prog-label">Progress · 3000¢ → 10000¢</span>
-        <span class="prog-pct" style="color:${done?'var(--green)':'var(--gold)'}">${done?'✓ DONE!':prog.toFixed(1)+'%'}</span>
-      </div>
-      <div class="prog-track">
-        <div class="prog-fill" style="width:${prog}%;background:${done?'var(--green)':'linear-gradient(90deg,var(--gold),var(--gold2))'}"></div>
-      </div>
-      <div class="prog-milestones">
-        <span class="prog-m">3000¢ ($30)</span>
-        <span class="prog-m">5000¢</span>
-        <span class="prog-m">7000¢</span>
-        <span class="prog-m">10000¢ ($100) 🎯</span>
-      </div>
+  <div class="prog-wrap fade-in">
+    <div class="prog-top">
+      <span class="prog-label">Progress · 3000¢ → 10000¢</span>
+      <span class="prog-pct" style="color:${done?'var(--green)':'var(--gold)'}">${done?'✓ DONE!':prog.toFixed(1)+'%'}</span>
     </div>
-
-    <div class="stats-row fade-in">
-      <div class="scard green"><div class="sc-lbl">Current Balance</div><div class="sc-val green">${lastBal}¢</div><div class="sc-sub">$${(lastBal/100).toFixed(2)}</div></div>
-      <div class="scard gold"><div class="sc-lbl">Remaining</div><div class="sc-val gold">${Math.max(0,CHALLENGE_TARGET-lastBal)}¢</div><div class="sc-sub">$${(Math.max(0,CHALLENGE_TARGET-lastBal)/100).toFixed(2)}</div></div>
-      <div class="scard blue"><div class="sc-lbl">Days Filled</div><div class="sc-val blue">${totalFilled}</div><div class="sc-sub">of ${CHALLENGE_DAYS}</div></div>
-      <div class="scard purple"><div class="sc-lbl">Days Left</div><div class="sc-val purple">${CHALLENGE_DAYS-totalFilled}</div><div class="sc-sub">to complete</div></div>
+    <div class="prog-track">
+      <div class="prog-fill" style="width:${prog}%;background:${done?'var(--green)':'linear-gradient(90deg,var(--gold),var(--gold2))'}"></div>
     </div>
+    <div class="prog-milestones">
+      <span class="prog-m">3000¢ ($30)</span>
+      <span class="prog-m">5000¢</span>
+      <span class="prog-m">7000¢</span>
+      <span class="prog-m">10000¢ ($100) 🎯</span>
+    </div>
+  </div>
 
-    <div class="trades-wrap fade-in">
-      <div class="tw-header">
-        <div class="tw-title">Daily Challenge Log</div>
-        <span class="tw-badge">${CHALLENGE_DAYS} days</span>
-      </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th>#</th>
-            <th>Date</th>
-            <th>Starting Balance</th>
-            <th>Daily Target</th>
-            <th>Trades (W/L)</th>
-            <th>Result</th>
-            <th>Ending Balance</th>
-            <th>Notes</th>
-            <th></th>
-          </tr></thead>
-          <tbody>`;
+  <div class="stats-row fade-in">
+    <div class="scard green"><div class="sc-lbl">Current Balance</div><div class="sc-val green">${lastBal}¢</div><div class="sc-sub">$${(lastBal/100).toFixed(2)}</div></div>
+    <div class="scard gold"><div class="sc-lbl">Remaining</div><div class="sc-val gold">${Math.max(0,CHALLENGE_TARGET-lastBal)}¢</div><div class="sc-sub">$${(Math.max(0,CHALLENGE_TARGET-lastBal)/100).toFixed(2)}</div></div>
+    <div class="scard blue"><div class="sc-lbl">Days Filled</div><div class="sc-val blue">${totalFilled}</div><div class="sc-sub">of ${CHALLENGE_DAYS}</div></div>
+    <div class="scard purple"><div class="sc-lbl">Days Left</div><div class="sc-val purple">${CHALLENGE_DAYS-totalFilled}</div><div class="sc-sub">to complete</div></div>
+  </div>
 
-    let runBal = CHALLENGE_START;
-    for(let d=1; d<=CHALLENGE_DAYS; d++){
-      const row = data[d] || {};
-      const endBal = row.ending_balance ? parseFloat(row.ending_balance) : null;
-      const isFilled = endBal !== null;
-      const gain = isFilled ? endBal - runBal : null;
-      const targetMet = gain !== null && gain >= CHALLENGE_DAILY_TARGET;
-      const startBal = runBal;
-      if(isFilled) runBal = endBal;
+  <div class="trades-wrap fade-in">
+    <div class="tw-header">
+      <div class="tw-title">Daily Challenge Log</div>
+      <span class="tw-badge">${CHALLENGE_DAYS} days</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Starting Balance</th>
+          <th>Daily Target</th>
+          <th>Trades (W/L)</th>
+          <th>Result</th>
+          <th>Ending Balance</th>
+          <th>Notes</th>
+          <th></th>
+        </tr></thead>
+        <tbody>`;
 
-      html += `<tr style="${isFilled?'':'opacity:0.6'}">
-        <td style="color:var(--text3);font-size:11px;font-weight:600;">${d}</td>
-        <td>
-          <input type="text" value="${row.trade_date||''}"
-            placeholder="Jul ${d}"
-            style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:4px 7px;font-size:12px;width:80px;font-family:var(--sans);"
-            onchange="updateChallenge(${d},'trade_date',this.value)">
-        </td>
-        <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${startBal}¢</td>
-        <td style="color:var(--gold);font-family:var(--mono);font-weight:600;">+${CHALLENGE_DAILY_TARGET}¢</td>
-        <td>
-          <input type="text" value="${row.trades||''}"
-            placeholder="W/W or W/L/W"
-            style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:4px 7px;font-size:12px;width:100px;font-family:var(--mono);"
-            onchange="updateChallenge(${d},'trades',this.value)">
-        </td>
-        <td>
-          <select onchange="updateChallenge(${d},'result',this.value)"
-            style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:4px 7px;font-size:12px;font-family:var(--sans);">
-            <option value="">—</option>
-            <option value="✅ Target Met" ${row.result==='✅ Target Met'?'selected':''}>✅ Target Met</option>
-            <option value="📈 Partial" ${row.result==='📈 Partial'?'selected':''}>📈 Partial</option>
-            <option value="🛑 Loss Day" ${row.result==='🛑 Loss Day'?'selected':''}>🛑 Loss Day</option>
-            <option value="⏸️ Rest Day" ${row.result==='⏸️ Rest Day'?'selected':''}>⏸️ Rest Day</option>
-          </select>
-        </td>
-        <td>
-          <input type="number" value="${row.ending_balance||''}"
-            placeholder="${startBal+CHALLENGE_DAILY_TARGET}"
-            style="background:var(--s3);border:1px solid ${isFilled?(targetMet?'var(--green)':'var(--red)'):'var(--border2)'};border-radius:5px;color:${isFilled?(targetMet?'var(--green)':'var(--red)'):'var(--text)'};padding:4px 7px;font-size:12px;width:80px;font-family:var(--mono);font-weight:600;"
-            onchange="updateChallenge(${d},'ending_balance',this.value)">
-          <span style="font-size:10px;color:var(--text3)">¢</span>
-        </td>
-        <td>
-          <input type="text" value="${row.notes||''}"
-            placeholder="Notes..."
-            style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:4px 7px;font-size:12px;width:140px;font-family:var(--sans);"
-            onchange="updateChallenge(${d},'notes',this.value)">
-        </td>
-        <td>
-          ${isFilled?'<span style="color:var(--green);font-size:14px">✓</span>':'<span style="color:var(--text3);font-size:11px">—</span>'}
-        </td>
-      </tr>`;
-    }
+  let runBal = CHALLENGE_START;
+  for(let d=1; d<=CHALLENGE_DAYS; d++){
+    const row = data[d] || {};
+    const endBal = row.ending_balance ? parseFloat(row.ending_balance) : null;
+    const isFilled = endBal !== null;
+    const gain = isFilled ? endBal - runBal : null;
+    const targetMet = gain !== null && gain >= CHALLENGE_DAILY_TARGET;
+    const startBal = runBal;
+    if(isFilled) runBal = endBal;
 
-    html += `</tbody></table></div></div>`;
-    document.getElementById('mainContent').innerHTML = html;
-  });
+    html += `<tr style="${isFilled?'':'opacity:0.6'}">
+      <td style="color:var(--text3);font-size:11px;font-weight:600;">${d}</td>
+      <td>
+        <input type="text" value="${row.trade_date||''}"
+          placeholder="Jul ${d}"
+          style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 7px;font-size:12px;width:80px;font-family:var(--sans);"
+          onchange="updateChallenge(${d},'trade_date',this.value)">
+      </td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--text2)">${startBal}¢</td>
+      <td style="color:var(--gold);font-family:var(--mono);font-weight:600;">+${CHALLENGE_DAILY_TARGET}¢</td>
+      <td>
+        <input type="text" value="${row.trades||''}"
+          placeholder="W/W or W/L/W"
+          style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 7px;font-size:12px;width:100px;font-family:var(--mono);"
+          onchange="updateChallenge(${d},'trades',this.value)">
+      </td>
+      <td>
+        <select onchange="updateChallenge(${d},'result',this.value)"
+          style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 7px;font-size:12px;font-family:var(--sans);">
+          <option value="">—</option>
+          <option value="✅ Target Met" ${row.result==='✅ Target Met'?'selected':''}>✅ Target Met</option>
+          <option value="📈 Partial" ${row.result==='📈 Partial'?'selected':''}>📈 Partial</option>
+          <option value="🛑 Loss Day" ${row.result==='🛑 Loss Day'?'selected':''}>🛑 Loss Day</option>
+          <option value="⏸️ Rest Day" ${row.result==='⏸️ Rest Day'?'selected':''}>⏸️ Rest Day</option>
+        </select>
+      </td>
+      <td>
+        <input type="number" value="${row.ending_balance||''}"
+          placeholder="${startBal+CHALLENGE_DAILY_TARGET}"
+          style="background:var(--s3);border:1px solid ${isFilled?(targetMet?'var(--green)':'var(--red)'):'var(--border2)'};border-radius:5px;color:${isFilled?(targetMet?'var(--green)':'var(--red)'):'var(--text)'};padding:5px 7px;font-size:12px;width:80px;font-family:var(--mono);font-weight:600;"
+          onchange="updateChallenge(${d},'ending_balance',this.value)">
+        <span style="font-size:10px;color:var(--text3)">¢</span>
+      </td>
+      <td>
+        <input type="text" value="${row.notes||''}"
+          placeholder="Notes..."
+          style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 7px;font-size:12px;width:140px;font-family:var(--sans);"
+          onchange="updateChallenge(${d},'notes',this.value)">
+      </td>
+      <td>
+        ${isFilled?'<span style="color:var(--green);font-size:14px">✓</span>':'<span style="color:var(--text3);font-size:11px">—</span>'}
+      </td>
+    </tr>`;
+  }
+
+  html += `</tbody></table></div></div>`;
+  document.getElementById('mainContent').innerHTML = html;
 }
 
 async function updateChallenge(dayNum, field, value){
   try{
     await saveChallengDay(dayNum, {[field]:value||null});
-    // Re-render to update balances
-    setTimeout(()=>renderChallenge(), 300);
+    if(!challengeData) challengeData={};
+    challengeData[dayNum] = {...(challengeData[dayNum]||{day_num:dayNum}), [field]:value||null};
+    renderChallenge();
   }catch(e){
     toast('Save failed: '+e.message,'error');
   }
