@@ -282,7 +282,6 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
   table{font-size:11px!important;width:100%!important;}
   .entry-cell{color:#555!important;font-size:11px!important;}
   .src{border:1px solid #ccc!important;color:#333!important;background:#f0f0f0!important;}
-  .pdf-goal-banner{display:block!important;background:#dcfce7!important;border:1px solid #16a34a!important;border-radius:8px!important;padding:10px 14px!important;margin-bottom:12px!important;color:#16a34a!important;font-weight:600!important;font-size:13px!important;}
   .tw-badge,.tw-title{color:#333!important;}
   .tw-header{border-bottom:1px solid #ddd!important;}
 }
@@ -636,10 +635,29 @@ function renderTabs(){
 }
 
 // ── SHARED TRADE FORM (Add / Edit) — used by Demo + every Phase ──
-function renderTradeForm(monthNum, sectionLabel, saveBtnLabel){
+function renderTradeForm(monthNum, sectionLabel, saveBtnLabel, isDemo){
   const et = editingTradeId!=null ? allTrades.find(t=>t.id===editingTradeId) : null;
   const isEditing = !!(et && et.month_num===monthNum);
   const e = isEditing ? et : null;
+
+  const confluenceChecklistHtml = isDemo ? `
+    <div class="fg" style="grid-column:1/-1">
+      <label>Confluence Checklist</label>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;background:var(--s3);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;font-weight:400;">
+          <input type="checkbox" id="f-displacement" ${isEditing&&e.displacement?'checked':''}> Displacement
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;font-weight:400;">
+          <input type="checkbox" id="f-choch" ${isEditing&&e.choch?'checked':''}> CHoCH
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;font-weight:400;">
+          <input type="checkbox" id="f-engulf" ${isEditing&&e.engulf?'checked':''}> Engulf Candle
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;font-weight:400;">
+          <input type="checkbox" id="f-retest" ${isEditing&&e.retest?'checked':''}> Retest
+        </label>
+      </div>
+    </div>` : '';
 
   const editBanner = isEditing ? `
     <div class="edit-banner">
@@ -674,6 +692,7 @@ function renderTradeForm(monthNum, sectionLabel, saveBtnLabel){
       <div class="fg"><label>Entry Timeframe</label><select id="f-entry-tf">${ENTRY_TIMEFRAMES.map(tf=>`<option ${isEditing&&e.entry_timeframe===tf?'selected':''}>${tf}</option>`).join('')}</select></div>
       <div class="fg"><label>Session</label><select id="f-session">${SESSIONS.map(s=>`<option ${isEditing&&e.session===s?'selected':''}>${s}</option>`).join('')}</select></div>
       <div class="fg" style="grid-column:1/-1"><label>Notes</label><input type="text" id="f-notes" placeholder="ICT OB + FVG, London session..." value="${isEditing&&e.notes?String(e.notes).replace(/"/g,'&quot;'):''}"></div>
+      ${confluenceChecklistHtml}
     </div>
     <div class="form-actions">
       <button class="btn btn-gold" id="add-btn" onclick="submitTrade(${monthNum})">${isEditing?'✓ Update Trade':saveBtnLabel}</button>
@@ -823,29 +842,20 @@ function renderDemoMonth(idx){
     <div class="scard ${totalPnl>=0?'green':'red'}"><div class="sc-lbl">Month P&L</div><div class="sc-val ${totalPnl>=0?'green':'red'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)}</div></div>
   </div>
 
-  ${renderTradeForm(num, 'Add Demo Trade — '+dm.full, '+ Save Demo Trade')}`;
+  ${renderTradeForm(num, 'Add Demo Trade — '+dm.full, '+ Save Demo Trade', true)}`;
 
-  const demoStartDate = arr.length>0 ? arr[0].trade_date : null;
-  const demoPdfBanner = arr.length>0
-    ? '<div class="pdf-goal-banner" style="display:none;">Demo Phase · '+dm.full+' · Trades: '+arr.length+' · Total P&L: '+(totalPnl>=0?'+':'')+'$'+totalPnl.toFixed(2)+' · Started: '+(demoStartDate||'—')+'</div>'
-    : '';
-  const demoPdfBtn = arr.length>0
-    ? '<button class="pdf-btn" onclick="downloadPDF(\'demo_'+dm.l.toLowerCase()+'\')">⬇ Download PDF</button>'
-    : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">Add trades to unlock PDF</span>';
-
-  html += demoPdfBanner;
-  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+dm.full+'</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+styleFilterHtml()+pairFilterHtml()+timeRangeFilterHtml()+'<button class="pdf-btn" onclick="exportDemoTradesClick('+num+')">⬇ Export Excel</button><span class="tw-badge">'+arrFiltered.length+' trades</span>'+demoPdfBtn+'</div></div>';
+  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+dm.full+'</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+styleFilterHtml()+pairFilterHtml()+timeRangeFilterHtml()+'<button class="pdf-btn" onclick="exportDemoTradesClick('+num+')">⬇ Export Excel</button><span class="tw-badge">'+arrFiltered.length+' trades</span></div></div>';
   html += `
     <div class="tbl-wrap">
       <table>
         <thead><tr>
           <th>#</th><th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th>
-          <th>Result</th><th>P&L</th><th>Style</th><th>Confluence</th><th>Entry TF</th><th>Session</th><th>RR</th><th>Notes</th><th class="pdf-section-hide"></th>
+          <th>Result</th><th>P&L</th><th>Style</th><th>Confluence</th><th>Entry TF</th><th>Session</th><th>RR</th><th>Displacement</th><th>CHoCH</th><th>Engulf</th><th>Retest</th><th>Notes</th><th class="pdf-section-hide"></th>
         </tr></thead>
         <tbody>`;
 
   if(arrFiltered.length===0){
-    html+=`<tr class="empty-row"><td colspan="16">${arr.length===0?'No demo trades yet — add your first trade above ☝️':'No trades match this filter'}</td></tr>`;
+    html+=`<tr class="empty-row"><td colspan="20">${arr.length===0?'No demo trades yet — add your first trade above ☝️':'No trades match this filter'}</td></tr>`;
   } else {
     arrFiltered.forEach((t,i)=>{
       const pnl=parseFloat(t.pnl||0);
@@ -866,6 +876,10 @@ function renderDemoMonth(idx){
         <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.entry_timeframe||'—'}</td>
         <td style="color:var(--text2);font-size:12px;white-space:nowrap" title="${t.session_time||''}">${t.session||'—'}</td>
         <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.rr_ratio||'—'}</td>
+        <td style="text-align:center;font-size:14px">${t.displacement?'✅':'❌'}</td>
+        <td style="text-align:center;font-size:14px">${t.choch?'✅':'❌'}</td>
+        <td style="text-align:center;font-size:14px">${t.engulf?'✅':'❌'}</td>
+        <td style="text-align:center;font-size:14px">${t.retest?'✅':'❌'}</td>
         <td style="color:var(--text2);min-width:140px;max-width:220px;white-space:normal;word-break:break-word;line-height:1.5;font-size:12px;padding:8px 12px">${t.notes||'—'}</td>
         ${tradeRowActions(t.id)}
       </tr>`;
@@ -935,26 +949,8 @@ function renderMonth(monthIdx){
   </div>
 
   ${renderTradeForm(num, 'Add Trade — Phase '+activePhase+' '+info.l, '+ Save to Supabase')}`;
-
-  let goalCompleteDate = null;
-  let goalStartDate = null;
-  if(arr.length > 0){
-    goalStartDate = arr[0].trade_date;
-    let runCheck = info.s;
-    for(let t of arr){
-      runCheck += parseFloat(t.pnl||0);
-      if(runCheck >= info.t && !goalCompleteDate){
-        goalCompleteDate = t.trade_date;
-      }
-    }
-  }
-  const goalBannerHtml = goalDone && goalCompleteDate
-    ? '<div class="pdf-goal-banner" style="display:none;">Goal Achieved! Started: '+(goalStartDate||'—')+' · Completed: '+goalCompleteDate+' · Balance: $'+bal.toFixed(2)+'</div>'
-    : '';
-
-  html += goalBannerHtml;
   const arrFiltered=applyPairFilter(applyStyleFilter(arr));
-  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+info.l+'</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+styleFilterHtml()+pairFilterHtml()+'<span class="tw-badge">'+arrFiltered.length+' trades</span>'+(goalDone ? '<button class="pdf-btn" onclick="downloadPDF(\'phase'+activePhase+'_month'+(monthIdx+1)+'\')">⬇ Download PDF</button>' : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">PDF unlocks on goal ✓</span>')+'</div></div>';
+  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+info.l+'</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+styleFilterHtml()+pairFilterHtml()+'<span class="tw-badge">'+arrFiltered.length+' trades</span></div></div>';
   html += `
     <div class="tbl-wrap">
       <table>
@@ -1301,17 +1297,6 @@ function renderPhasePlan(){
   document.getElementById('mainContent').innerHTML=html;
 }
 
-// ── PDF DOWNLOAD ──────────────────────────────────────────
-function downloadPDF(filename){
-  document.querySelectorAll('.pdf-goal-banner').forEach(el=>el.style.display='block');
-  const oldTitle = document.title;
-  document.title = 'Hassan FX — ' + filename;
-  window.print();
-  document.title = oldTitle;
-  setTimeout(()=>{
-    document.querySelectorAll('.pdf-goal-banner').forEach(el=>el.style.display='none');
-  }, 1000);
-}
 
 // ── SWITCH PHASE ──────────────────────────────────────────
 function switchPhase(phNum){
@@ -1390,6 +1375,10 @@ function clearForm(){
   const tfEl=document.getElementById('f-entry-tf'); if(tfEl) tfEl.selectedIndex=0;
   const sesEl=document.getElementById('f-session'); if(sesEl) sesEl.selectedIndex=0;
   const dateEl=document.getElementById('f-date'); if(dateEl) dateEl.value=todayISO();
+  ['f-displacement','f-choch','f-engulf','f-retest'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.checked=false;
+  });
   const rp=document.getElementById('rr-preview');
   if(rp) rp.textContent='';
 }
@@ -1440,6 +1429,14 @@ async function submitTrade(monthNum){
     session_time: SESSION_TIMES[document.getElementById('f-session').value]||null,
     notes: document.getElementById('f-notes').value||null
   };
+
+  const dispEl=document.getElementById('f-displacement');
+  if(dispEl){
+    trade.displacement = dispEl.checked;
+    trade.choch = document.getElementById('f-choch').checked;
+    trade.engulf = document.getElementById('f-engulf').checked;
+    trade.retest = document.getElementById('f-retest').checked;
+  }
 
   try{
     if(isEditing){
