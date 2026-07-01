@@ -403,8 +403,21 @@ const PHASE_PLAN = [
 ];
 
 const PAIRS=['XAUUSD','EURUSD','GBPUSD','USDJPY','USDCHF','AUDUSD','USDCAD','NZDUSD','GBPJPY','EURJPY','XAGUSD'];
-const SRCS=['TP','SR','EC','HF'];
 const HONDA_IMG='https://graficsea.com/wp-content/uploads/2022/02/Honda-CG-125-Euro-2-Motorcycle.jpg';
+
+// ── TRADING STYLE / CONFLUENCE / TIMEFRAME / SESSION ───────
+const TRADING_STYLES=['A + Swing','Intraday','Scalp'];
+const STYLE_CONFLUENCE={'A + Swing':'D/H4/H1/M30','Intraday':'1H/M30/M15','Scalp':'M30/M15/M5'};
+const CONFLUENCE_OPTIONS=['D/H4/H1/M30','1H/M30/M15','M30/M15/M5'];
+const ENTRY_TIMEFRAMES=['M15','M5','M3','M1'];
+const SESSIONS=['Asia','London','London + New York Overlap','New York'];
+const SESSION_TIMES={
+  'Asia':'3 AM – 12 PM PKT',
+  'London':'12 PM – 4 PM PKT',
+  'London + New York Overlap':'4 PM – 7 PM PKT',
+  'New York':'7 PM – 10 PM PKT'
+};
+let styleFilter='All'; // trade log table filter, persists per view
 
 // ── STATE ─────────────────────────────────────────────────
 // activePhase: 0=demo, 1-4=phase num
@@ -552,6 +565,7 @@ function updateTopbar(){
 function goTo(newCur){
   cur=newCur;
   editingTradeId=null;
+  styleFilter='All';
   renderPage();
 }
 
@@ -636,8 +650,11 @@ function renderTradeForm(monthNum, sectionLabel, saveBtnLabel){
         <option value="Open" ${isEditing&&e.result==='Open'?'selected':''}>⏳ Open</option>
       </select></div>
       <div class="fg"><label>P&L ($)</label><input type="number" id="f-pnl" placeholder="+15.50 or -8.20" step="0.01" value="${isEditing&&e.pnl!=null?e.pnl:''}" oninput="onPnlInput()"></div>
-      <div class="fg"><label>Source</label><select id="f-src">${SRCS.map(s=>`<option ${isEditing&&e.source===s?'selected':''}>${s}</option>`).join('')}</select></div>
       <div class="fg"><label>RR Ratio</label><input type="text" id="f-rr" placeholder="1:3" value="${isEditing&&e.rr_ratio?e.rr_ratio:''}"></div>
+      <div class="fg"><label>Trading Style</label><select id="f-style" onchange="onStyleChange()">${TRADING_STYLES.map(s=>`<option ${isEditing&&e.trading_style===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="fg"><label>Confluence</label><select id="f-confluence">${CONFLUENCE_OPTIONS.map(c=>`<option ${(isEditing&&e.confluence===c)||(!isEditing&&STYLE_CONFLUENCE[TRADING_STYLES[0]]===c)?'selected':''}>${c}</option>`).join('')}</select></div>
+      <div class="fg"><label>Entry Timeframe</label><select id="f-entry-tf">${ENTRY_TIMEFRAMES.map(tf=>`<option ${isEditing&&e.entry_timeframe===tf?'selected':''}>${tf}</option>`).join('')}</select></div>
+      <div class="fg"><label>Session</label><select id="f-session">${SESSIONS.map(s=>`<option ${isEditing&&e.session===s?'selected':''}>${s}</option>`).join('')}</select></div>
       <div class="fg" style="grid-column:1/-1"><label>Notes</label><input type="text" id="f-notes" placeholder="ICT OB + FVG, London session..." value="${isEditing&&e.notes?String(e.notes).replace(/"/g,'&quot;'):''}"></div>
     </div>
     <div class="form-actions">
@@ -647,6 +664,22 @@ function renderTradeForm(monthNum, sectionLabel, saveBtnLabel){
       <span class="rr-preview" id="rr-preview"></span>
     </div>
   </div>`;
+}
+
+// ── STYLE FILTER (trade log tables) ────────────────────────
+function styleFilterHtml(){
+  const opts=['All',...TRADING_STYLES];
+  return `<select id="style-filter-select" onchange="onStyleFilterChange(this.value)" style="background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--text);padding:5px 10px;font-size:12px;font-family:var(--sans);">
+    ${opts.map(s=>`<option ${styleFilter===s?'selected':''}>${s}</option>`).join('')}
+  </select>`;
+}
+function onStyleFilterChange(val){
+  styleFilter=val;
+  renderPage();
+}
+function applyStyleFilter(arr){
+  if(styleFilter==='All') return arr;
+  return arr.filter(t=>t.trading_style===styleFilter);
 }
 
 function tradeRowActions(id){
@@ -661,6 +694,7 @@ function renderDemoMonth(idx){
   const dm=DEMO_MONTHS[idx];
   const num=-(idx+1);
   const arr=tradesForMonthNum(num);
+  const arrFiltered=applyStyleFilter(arr);
   const st=stats(arr);
   const totalPnl=arr.reduce((a,t)=>a+parseFloat(t.pnl||0),0);
   const lastTrade=arr.length>0?arr[arr.length-1]:null;
@@ -706,20 +740,20 @@ function renderDemoMonth(idx){
     : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">Add trades to unlock PDF</span>';
 
   html += demoPdfBanner;
-  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+dm.full+'</div><div style="display:flex;align-items:center;gap:8px;"><span class="tw-badge">'+arr.length+' trades</span>'+demoPdfBtn+'</div></div>';
+  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+dm.full+'</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+styleFilterHtml()+'<span class="tw-badge">'+arrFiltered.length+' trades</span>'+demoPdfBtn+'</div></div>';
   html += `
     <div class="tbl-wrap">
       <table>
         <thead><tr>
           <th>#</th><th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th>
-          <th>Result</th><th>P&L</th><th>Src</th><th>RR</th><th>Notes</th><th class="pdf-section-hide"></th>
+          <th>Result</th><th>P&L</th><th>Style</th><th>Confluence</th><th>Entry TF</th><th>Session</th><th>RR</th><th>Notes</th><th class="pdf-section-hide"></th>
         </tr></thead>
         <tbody>`;
 
-  if(arr.length===0){
-    html+=`<tr class="empty-row"><td colspan="13">No demo trades yet — add your first trade above ☝️</td></tr>`;
+  if(arrFiltered.length===0){
+    html+=`<tr class="empty-row"><td colspan="16">${arr.length===0?'No demo trades yet — add your first trade above ☝️':'No trades match this filter'}</td></tr>`;
   } else {
-    arr.forEach((t,i)=>{
+    arrFiltered.forEach((t,i)=>{
       const pnl=parseFloat(t.pnl||0);
       const bc=t.result==='Win'?'bw':t.result==='Loss'?'bl':t.result==='BE'?'bb':'bo';
       const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
@@ -733,7 +767,10 @@ function renderDemoMonth(idx){
         <td class="entry-cell" style="color:var(--green)">${t.tp||'—'}</td>
         <td><span class="badge ${bc}">${t.result}</span></td>
         <td class="pnl-cell ${pnl>=0?'pnl-pos':'pnl-neg'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</td>
-        <td><span class="src s${t.source}">${t.source}</span></td>
+        <td style="color:var(--text2);font-size:12px;white-space:nowrap">${t.trading_style||'—'}</td>
+        <td style="color:var(--text2);font-family:var(--mono);font-size:11px;white-space:nowrap">${t.confluence||'—'}</td>
+        <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.entry_timeframe||'—'}</td>
+        <td style="color:var(--text2);font-size:12px;white-space:nowrap" title="${t.session_time||''}">${t.session||'—'}</td>
         <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.rr_ratio||'—'}</td>
         <td style="color:var(--text2);min-width:140px;max-width:220px;white-space:normal;word-break:break-word;line-height:1.5;font-size:12px;padding:8px 12px">${t.notes||'—'}</td>
         ${tradeRowActions(t.id)}
@@ -822,23 +859,29 @@ function renderMonth(monthIdx){
     : '';
 
   html += goalBannerHtml;
-  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+info.l+'</div><div style="display:flex;align-items:center;gap:8px;"><span class="tw-badge">'+arr.length+' trades</span>'+(goalDone ? '<button class="pdf-btn" onclick="downloadPDF(\'phase'+activePhase+'_month'+(monthIdx+1)+'\')">⬇ Download PDF</button>' : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">PDF unlocks on goal ✓</span>')+'</div></div>';
+  const arrFiltered=applyStyleFilter(arr);
+  html += '<div class="trades-wrap fade-in"><div class="tw-header"><div class="tw-title">Trade Log — '+info.l+'</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+styleFilterHtml()+'<span class="tw-badge">'+arrFiltered.length+' trades</span>'+(goalDone ? '<button class="pdf-btn" onclick="downloadPDF(\'phase'+activePhase+'_month'+(monthIdx+1)+'\')">⬇ Download PDF</button>' : '<span style="font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border);border-radius:20px;">PDF unlocks on goal ✓</span>')+'</div></div>';
   html += `
     <div class="tbl-wrap">
       <table>
         <thead><tr>
           <th>#</th><th>Date</th><th>Pair</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP</th>
-          <th>Result</th><th>P&L</th><th>Bal After</th><th>Src</th><th>RR</th><th>Notes</th><th class="pdf-section-hide"></th>
+          <th>Result</th><th>P&L</th><th>Bal After</th><th>Style</th><th>Confluence</th><th>Entry TF</th><th>Session</th><th>RR</th><th>Notes</th><th class="pdf-section-hide"></th>
         </tr></thead>
         <tbody>`;
 
-  if(arr.length===0){
-    html+=`<tr class="empty-row"><td colspan="14">No trades yet — add your first trade above ☝️</td></tr>`;
+  // running balance always computed over the FULL unfiltered sequence (chronological),
+  // then we only render rows that pass the style filter, keeping their true running balance
+  let runBal=info.s;
+  const runBalById={};
+  arr.forEach(t=>{ runBal+=parseFloat(t.pnl||0); runBalById[t.id]=runBal; });
+
+  if(arrFiltered.length===0){
+    html+=`<tr class="empty-row"><td colspan="17">${arr.length===0?'No trades yet — add your first trade above ☝️':'No trades match this filter'}</td></tr>`;
   } else {
-    let runBal=info.s;
-    arr.forEach((t,i)=>{
-      runBal+=parseFloat(t.pnl||0);
+    arrFiltered.forEach((t,i)=>{
       const pnl=parseFloat(t.pnl||0);
+      const rb=runBalById[t.id];
       const bc=t.result==='Win'?'bw':t.result==='Loss'?'bl':t.result==='BE'?'bb':'bo';
       const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
       html+=`<tr class="${t.id===editingTradeId?'editing-row':''}">
@@ -851,8 +894,11 @@ function renderMonth(monthIdx){
         <td class="entry-cell" style="color:var(--green)">${t.tp||'—'}</td>
         <td><span class="badge ${bc}">${t.result}</span></td>
         <td class="pnl-cell ${pnl>=0?'pnl-pos':'pnl-neg'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</td>
-        <td style="font-family:var(--mono);font-size:12px;color:${runBal>=info.s?'var(--text)':'var(--red)'}">$${runBal.toFixed(2)}</td>
-        <td><span class="src s${t.source}">${t.source}</span></td>
+        <td style="font-family:var(--mono);font-size:12px;color:${rb>=info.s?'var(--text)':'var(--red)'}">$${rb.toFixed(2)}</td>
+        <td style="color:var(--text2);font-size:12px;white-space:nowrap">${t.trading_style||'—'}</td>
+        <td style="color:var(--text2);font-family:var(--mono);font-size:11px;white-space:nowrap">${t.confluence||'—'}</td>
+        <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.entry_timeframe||'—'}</td>
+        <td style="color:var(--text2);font-size:12px;white-space:nowrap" title="${t.session_time||''}">${t.session||'—'}</td>
         <td style="color:var(--text2);font-family:var(--mono);font-size:12px;white-space:nowrap">${t.rr_ratio||'—'}</td>
         <td style="color:var(--text2);min-width:140px;max-width:220px;white-space:normal;word-break:break-word;line-height:1.5;font-size:12px;padding:8px 12px">${t.notes||'—'}</td>
         ${tradeRowActions(t.id)}
@@ -932,17 +978,16 @@ function renderOverview(){
     });
   }
 
-  html+=`</div><div class="ov-card"><div class="ov-card-title">Source Performance</div>`;
-  const srcNames={TP:'TradingPapa',SR:'Sniper Entry',EC:'EarnwithRashid',HF:'Manual HF'};
-  ['TP','SR','EC','HF'].forEach(src=>{
-    const arr=allTrades.filter(t=>t.source===src);
+  html+=`</div><div class="ov-card"><div class="ov-card-title">Trading Style Performance</div>`;
+  TRADING_STYLES.forEach(style=>{
+    const arr=allTrades.filter(t=>t.trading_style===style);
     const s=stats(arr);
     if(s.total===0){
-      html+=`<div class="bal-item"><div class="bi-info"><div class="bi-label"><span class="src s${src}">${src}</span> <span style="margin-left:6px;color:var(--text2)">${srcNames[src]}</span></div></div><div class="bi-right"><div class="bi-val" style="color:var(--text3)">No trades</div></div></div>`;
+      html+=`<div class="bal-item"><div class="bi-info"><div class="bi-label">${style}</div></div><div class="bi-right"><div class="bi-val" style="color:var(--text3)">No trades</div></div></div>`;
     } else {
       html+=`<div class="bal-item">
         <div class="bi-info">
-          <div class="bi-label"><span class="src s${src}">${src}</span> <span style="margin-left:6px;color:var(--text2)">${srcNames[src]}</span></div>
+          <div class="bi-label">${style}</div>
           <div class="bi-bar-wrap"><div class="bi-bar" style="width:${s.wr}%;background:${s.wr>=60?'var(--green)':s.wr>=40?'var(--gold)':'var(--red)'}"></div></div>
         </div>
         <div class="bi-right">
@@ -1228,6 +1273,14 @@ function onPnlInput(){
   }
 }
 
+function onStyleChange(){
+  const styleEl=document.getElementById('f-style');
+  const confEl=document.getElementById('f-confluence');
+  if(!styleEl||!confEl) return;
+  const auto=STYLE_CONFLUENCE[styleEl.value];
+  if(auto) confEl.value=auto;
+}
+
 function clearForm(){
   ['f-entry','f-sl','f-tp','f-pnl','f-rr','f-notes'].forEach(id=>{
     const el=document.getElementById(id);
@@ -1236,7 +1289,10 @@ function clearForm(){
   const pairEl=document.getElementById('f-pair'); if(pairEl) pairEl.selectedIndex=0;
   const dirEl=document.getElementById('f-dir'); if(dirEl) dirEl.selectedIndex=0;
   const resEl=document.getElementById('f-result'); if(resEl) resEl.selectedIndex=0;
-  const srcEl=document.getElementById('f-src'); if(srcEl) srcEl.selectedIndex=0;
+  const styleEl=document.getElementById('f-style'); if(styleEl) styleEl.selectedIndex=0;
+  const confEl=document.getElementById('f-confluence'); if(confEl) confEl.selectedIndex=0;
+  const tfEl=document.getElementById('f-entry-tf'); if(tfEl) tfEl.selectedIndex=0;
+  const sesEl=document.getElementById('f-session'); if(sesEl) sesEl.selectedIndex=0;
   const dateEl=document.getElementById('f-date'); if(dateEl) dateEl.value=todayISO();
   const rp=document.getElementById('rr-preview');
   if(rp) rp.textContent='';
@@ -1280,8 +1336,12 @@ async function submitTrade(monthNum){
     tp: parseFloat(document.getElementById('f-tp').value)||null,
     result: document.getElementById('f-result').value,
     pnl: pnlNum,
-    source: document.getElementById('f-src').value,
     rr_ratio: document.getElementById('f-rr').value||null,
+    trading_style: document.getElementById('f-style').value,
+    confluence: document.getElementById('f-confluence').value,
+    entry_timeframe: document.getElementById('f-entry-tf').value,
+    session: document.getElementById('f-session').value,
+    session_time: SESSION_TIMES[document.getElementById('f-session').value]||null,
     notes: document.getElementById('f-notes').value||null
   };
 
