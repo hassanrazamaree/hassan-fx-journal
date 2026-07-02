@@ -894,7 +894,7 @@ function renderDemoMonth(idx){
       const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
       html+=`<tr class="${t.id===editingTradeId?'editing-row':''}">
         <td style="color:var(--text3);font-size:11px">${i+1}</td>
-        <td style="color:var(--text2);white-space:nowrap">${t.trade_date||'—'}</td>
+        <td style="color:var(--text2);white-space:nowrap">${t.trade_date||'—'}${t._pending?' <span title="Pending sync" style="color:var(--gold)">🕓</span>':''}</td>
         <td style="font-weight:600;white-space:nowrap">${pairLabel(t.pair)}</td>
         <td style="white-space:nowrap">${dir}</td>
         <td class="entry-cell">${t.entry_price||'—'}</td>
@@ -1007,7 +1007,7 @@ function renderMonth(monthIdx){
       const dir=t.direction==='BUY'?'<span style="color:var(--green)">↑ BUY</span>':'<span style="color:var(--red)">↓ SELL</span>';
       html+=`<tr class="${t.id===editingTradeId?'editing-row':''}">
         <td style="color:var(--text3);font-size:11px">${i+1}</td>
-        <td style="color:var(--text2);white-space:nowrap">${t.trade_date||'—'}</td>
+        <td style="color:var(--text2);white-space:nowrap">${t.trade_date||'—'}${t._pending?' <span title="Pending sync" style="color:var(--gold)">🕓</span>':''}</td>
         <td style="font-weight:600;white-space:nowrap">${pairLabel(t.pair)}</td>
         <td style="white-space:nowrap">${dir}</td>
         <td class="entry-cell">${t.entry_price||'—'}</td>
@@ -1470,6 +1470,7 @@ async function submitTrade(monthNum){
   }
 
   try{
+    if(isOffline()) throw new TypeError('offline');
     if(isEditing){
       const updated=await sbUpdate(editingTradeId, trade);
       const idx=allTrades.findIndex(t=>t.id===editingTradeId);
@@ -1484,8 +1485,24 @@ async function submitTrade(monthNum){
     clearForm();
     renderPage();
   } catch(e){
-    toast((isEditing?'Update failed: ':'Save failed: ')+e.message,'error');
-    if(btn){btn.disabled=false;btn.textContent=isEditing?'✓ Update Trade':'+ Save to Supabase';}
+    if(isNetworkError(e)){
+      if(isEditing){
+        enqueue({entity:'trade', action:'update', targetId:editingTradeId, payload:trade});
+        const idx=allTrades.findIndex(t=>t.id===editingTradeId);
+        if(idx>-1) allTrades[idx]={...allTrades[idx], ...trade, _pending:true};
+        editingTradeId=null;
+      } else {
+        const localId='local-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+        enqueue({entity:'trade', action:'insert', key:localId, payload:trade});
+        allTrades.push({...trade, id:localId, _pending:true});
+      }
+      toast('📴 Offline — trade queued, will sync automatically','error');
+      clearForm();
+      renderPage();
+    } else {
+      toast((isEditing?'Update failed: ':'Save failed: ')+e.message,'error');
+      if(btn){btn.disabled=false;btn.textContent=isEditing?'✓ Update Trade':'+ Save to Supabase';}
+    }
   }
 }
 
@@ -1494,14 +1511,28 @@ async function removeTrade(id, btn){
   if(!confirm('Delete this trade?')) return;
   if(btn) btn.disabled=true;
   try{
+    if(isOffline()) throw new TypeError('offline');
     await sbDelete(id);
     allTrades=allTrades.filter(t=>t.id!==id);
     if(editingTradeId===id){ editingTradeId=null; }
     toast('Trade deleted','error');
     renderPage();
   } catch(e){
-    toast('Delete failed: '+e.message,'error');
-    if(btn) btn.disabled=false;
+    if(isNetworkError(e)){
+      if(String(id).startsWith('local-')){
+        const q=getQueue().filter(item=> !(item.entity==='trade' && (item.key===id || item.targetId===id)));
+        saveQueue(q);
+      } else {
+        enqueue({entity:'trade', action:'delete', targetId:id});
+      }
+      allTrades=allTrades.filter(t=>t.id!==id);
+      if(editingTradeId===id){ editingTradeId=null; }
+      toast('📴 Offline — delete queued','error');
+      renderPage();
+    } else {
+      toast('Delete failed: '+e.message,'error');
+      if(btn) btn.disabled=false;
+    }
   }
 }
 
@@ -1671,14 +1702,151 @@ async function renderChallenge(){
 
 async function updateChallenge(dayNum, field, value){
   try{
+    if(isOffline()) throw new TypeError('offline');
     await saveChallengDay(dayNum, {[field]:value||null});
     if(!challengeData) challengeData={};
     challengeData[dayNum] = {...(challengeData[dayNum]||{day_num:dayNum}), [field]:value||null};
     renderChallenge();
   }catch(e){
-    toast('Save failed: '+e.message,'error');
+    if(isNetworkError(e)){
+      enqueue({entity:'challenge', action:'upsert', key:dayNum, payload:{[field]:value||null}});
+      if(!challengeData) challengeData={};
+      challengeData[dayNum] = {...(challengeData[dayNum]||{day_num:dayNum}), [field]:value||null, _pending:true};
+      toast('📴 Offline — queued, will sync','error');
+      renderChallenge();
+    } else {
+      toast('Save failed: '+e.message,'error');
+    }
   }
 }
+
+// ── OFFLINE QUEUE ─────────────────────────────────────────
+const OFFLINE_QUEUE_KEY='hfx_offline_queue';
+
+function isOffline(){ return typeof navigator!=='undefined' && navigator.onLine===false; }
+function isNetworkError(e){
+  if(e instanceof TypeError) return true;
+  if(e && e.message && /offline|fetch|network|Failed to fetch/i.test(e.message)) return true;
+  return false;
+}
+function getQueue(){
+  try{ return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY))||[]; }
+  catch(e){ return []; }
+}
+function saveQueue(q){
+  localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(q));
+  updateSyncBadge();
+}
+function enqueue(item){
+  const q=getQueue();
+
+  // Editing a trade that hasn't synced yet — merge into its pending insert instead of a separate update
+  if(item.entity==='trade' && item.action==='update' && String(item.targetId).startsWith('local-')){
+    const insertItem=q.find(q2=>q2.entity==='trade' && q2.action==='insert' && q2.key===item.targetId);
+    if(insertItem){
+      insertItem.payload={...insertItem.payload, ...item.payload};
+      saveQueue(q);
+      return;
+    }
+  }
+
+  // Merge repeat edits to the same target into one queued op (challenge days, discipline days, trade updates)
+  if((item.entity==='challenge' && item.action==='upsert') ||
+     (item.entity==='discipline' && item.action==='upsert') ||
+     (item.entity==='trade' && item.action==='update')){
+    const matchKey=item.entity==='trade' ? item.targetId : item.key;
+    const existing=q.find(q2=> q2.entity===item.entity && q2.action===item.action &&
+      (item.entity==='trade' ? q2.targetId===matchKey : q2.key===matchKey));
+    if(existing){
+      existing.payload={...existing.payload, ...item.payload};
+      saveQueue(q);
+      return;
+    }
+  }
+
+  q.push({qid:Date.now()+'-'+Math.random().toString(36).slice(2), ...item});
+  saveQueue(q);
+}
+function remapTradeKey(oldKey, newKey){
+  const q=getQueue();
+  let changed=false;
+  q.forEach(item=>{
+    if(item.entity==='trade' && (item.action==='update'||item.action==='delete') && item.targetId===oldKey){
+      item.targetId=newKey; changed=true;
+    }
+  });
+  if(changed) saveQueue(q);
+}
+function updateSyncBadge(){
+  const el=document.getElementById('tb-sync');
+  if(!el) return;
+  const q=getQueue();
+  if(isOffline()){
+    el.innerHTML='<span class="sync-dot sync-err"></span>Offline'+(q.length?' · '+q.length+' pending':'');
+  } else if(q.length>0){
+    el.innerHTML='<span class="sync-dot" style="background:var(--gold)"></span>'+q.length+' pending';
+  } else {
+    el.innerHTML='<span class="sync-dot sync-ok"></span>Connected';
+  }
+}
+
+async function processQueue(){
+  if(isOffline()) return;
+  let processedCount=0;
+  while(true){
+    const q=getQueue();
+    if(!q.length) break;
+    const item=q[0];
+    try{
+      if(item.entity==='trade'){
+        if(item.action==='insert'){
+          const inserted=await sbInsert(item.payload);
+          const realId=inserted[0].id;
+          const idx=allTrades.findIndex(t=>t.id===item.key);
+          if(idx>-1) allTrades[idx]=inserted[0];
+          remapTradeKey(item.key, realId);
+        } else if(item.action==='update'){
+          const updated=await sbUpdate(item.targetId, item.payload);
+          const idx=allTrades.findIndex(t=>t.id===item.targetId);
+          if(idx>-1) allTrades[idx]=updated[0];
+        } else if(item.action==='delete'){
+          await sbDelete(item.targetId);
+          allTrades=allTrades.filter(t=>t.id!==item.targetId);
+        }
+      } else if(item.entity==='challenge'){
+        await saveChallengDay(item.key, item.payload);
+        if(!challengeData) challengeData={};
+        challengeData[item.key]={...(challengeData[item.key]||{day_num:item.key}), ...item.payload, _pending:false};
+      } else if(item.entity==='discipline'){
+        if(item.action==='delete'){
+          const res=await fetch(`${SB_URL}/rest/v1/discipline_entries?entry_date=eq.${item.key}`,{method:'DELETE',headers:HEADERS});
+          if(!res.ok) throw new Error('delete failed');
+          if(disciplineData) disciplineData=disciplineData.filter(e=>e.entry_date!==item.key);
+        } else {
+          const rows=await upsertDisciplineEntry(item.key, item.payload);
+          if(disciplineData){
+            const idx=disciplineData.findIndex(e=>e.entry_date===item.key);
+            if(idx>=0) disciplineData[idx]=rows[0]; else disciplineData.unshift(rows[0]);
+          }
+        }
+      }
+      const freshQ=getQueue();
+      freshQ.shift();
+      saveQueue(freshQ);
+      processedCount++;
+    } catch(e){
+      break; // network still flaky — stop and retry on next online event
+    }
+  }
+  if(processedCount>0){
+    toast(`✓ Synced ${processedCount} pending item(s)`);
+    renderPage();
+  }
+  updateSyncBadge();
+}
+
+window.addEventListener('online', ()=>{ toast('🌐 Back online — syncing...'); processQueue(); });
+window.addEventListener('offline', ()=>{ updateSyncBadge(); });
 
 // ── DISCIPLINE TRACKER ───────────────────────────────────
 function todayPKT(){
@@ -1745,14 +1913,15 @@ async function upsertDisciplineEntry(date, data){
 
 async function markToday(status){
   const date = todayPKT();
+  const existing = (disciplineData||[]).find(e=>e.entry_date===date);
+  const payload = {
+    status,
+    slept_ok: existing ? existing.slept_ok : true,
+    trigger: existing ? existing.trigger : null,
+    note: existing ? existing.note : null
+  };
   try{
-    const existing = (disciplineData||[]).find(e=>e.entry_date===date);
-    const payload = {
-      status,
-      slept_ok: existing ? existing.slept_ok : true,
-      trigger: existing ? existing.trigger : null,
-      note: existing ? existing.note : null
-    };
+    if(isOffline()) throw new TypeError('offline');
     const rows = await upsertDisciplineEntry(date, payload);
     const saved = rows[0];
     if(!disciplineData) disciplineData=[];
@@ -1762,34 +1931,63 @@ async function markToday(status){
     renderDiscipline();
     toast(status==='clean'?'Marked clean today ✓':'Relapse logged');
   }catch(e){
-    toast('Save failed: '+e.message,'error');
+    if(isNetworkError(e)){
+      enqueue({entity:'discipline', action:'upsert', key:date, payload});
+      if(!disciplineData) disciplineData=[];
+      const idx = disciplineData.findIndex(e=>e.entry_date===date);
+      const merged = {...(disciplineData[idx]||{entry_date:date}), ...payload, _pending:true};
+      if(idx>=0) disciplineData[idx]=merged; else disciplineData.push(merged);
+      disciplineData.sort((a,b)=>b.entry_date.localeCompare(a.entry_date));
+      renderDiscipline();
+      toast('📴 Offline — queued, will sync','error');
+    } else {
+      toast('Save failed: '+e.message,'error');
+    }
   }
 }
 
 async function updateDisciplineField(date, field, value){
+  const entry = disciplineData.find(e=>e.entry_date===date);
+  if(!entry) return;
+  const payload = {status:entry.status, slept_ok:entry.slept_ok, trigger:entry.trigger, note:entry.note};
+  payload[field]=value;
   try{
-    const entry = disciplineData.find(e=>e.entry_date===date);
-    if(!entry) return;
-    const payload = {status:entry.status, slept_ok:entry.slept_ok, trigger:entry.trigger, note:entry.note};
-    payload[field]=value;
+    if(isOffline()) throw new TypeError('offline');
     const rows = await upsertDisciplineEntry(date, payload);
     Object.assign(entry, rows[0]);
     renderDiscipline();
   }catch(e){
-    toast('Save failed: '+e.message,'error');
+    if(isNetworkError(e)){
+      enqueue({entity:'discipline', action:'upsert', key:date, payload:{[field]:value}});
+      Object.assign(entry, {[field]:value, _pending:true});
+      renderDiscipline();
+      toast('📴 Offline — queued','error');
+    } else {
+      toast('Save failed: '+e.message,'error');
+    }
   }
 }
 
 async function deleteDisciplineEntry(date){
   if(!confirm('Delete entry for '+fmtNiceDate(date)+'?')) return;
   try{
+    if(isOffline()) throw new TypeError('offline');
     const res = await fetch(`${SB_URL}/rest/v1/discipline_entries?entry_date=eq.${date}`,{method:'DELETE',headers:HEADERS});
     if(!res.ok) throw new Error(await res.text());
     disciplineData = disciplineData.filter(e=>e.entry_date!==date);
     renderDiscipline();
     toast('Entry deleted');
   }catch(e){
-    toast('Delete failed: '+e.message,'error');
+    if(isNetworkError(e)){
+      const q=getQueue().filter(item=> !(item.entity==='discipline' && item.key===date));
+      saveQueue(q);
+      enqueue({entity:'discipline', action:'delete', key:date});
+      disciplineData = disciplineData.filter(e=>e.entry_date!==date);
+      renderDiscipline();
+      toast('📴 Offline — delete queued','error');
+    } else {
+      toast('Delete failed: '+e.message,'error');
+    }
   }
 }
 
@@ -1871,7 +2069,7 @@ async function renderDiscipline(){
         <tbody>
         ${data.length ? data.map(e=>`
         <tr>
-          <td class="entry-cell">${fmtNiceDate(e.entry_date)}</td>
+          <td class="entry-cell">${fmtNiceDate(e.entry_date)}${e._pending?' <span title="Pending sync" style="color:var(--gold)">🕓</span>':''}</td>
           <td>
             <select onchange="updateDisciplineField('${e.entry_date}','status',this.value)"
               style="background:${e.status==='clean'?'var(--green-dim)':'var(--red-dim)'};color:${e.status==='clean'?'var(--green)':'var(--red)'};border:1px solid ${e.status==='clean'?'var(--green)':'var(--red)'};border-radius:5px;padding:5px 8px;font-size:12px;font-weight:600;font-family:var(--sans);">
@@ -1911,6 +2109,8 @@ async function renderDiscipline(){
 (async()=>{
   await loadAllTrades();
   renderPage();
+  updateSyncBadge();
+  if(!isOffline()) processQueue();
 })();
 
 if('serviceWorker' in navigator){
