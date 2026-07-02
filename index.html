@@ -2,9 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080d18">
 <title>Hassan FX — Trading Journal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hassan FX">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://idkfnshmbmajkoxixryw.supabase.co">
@@ -247,6 +253,20 @@ tbody td{padding:9px 12px;font-size:13px;color:var(--text);vertical-align:middle
 .rule-num{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
 .rule-text{font-size:12px;color:var(--text);line-height:1.5;word-break:break-word;}
 
+/* DISCIPLINE TRACKER */
+.discipline-checkin{background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:1.25rem;margin-bottom:1.25rem;}
+.dc-buttons{display:flex;gap:10px;}
+.dc-btn{flex:1;padding:16px;border-radius:10px;border:2px solid var(--border2);background:var(--s3);color:var(--text2);font-size:14px;font-weight:700;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s;text-align:center;font-family:var(--sans);}
+.dc-btn.clean:hover{border-color:var(--green);color:var(--green);}
+.dc-btn.relapse:hover{border-color:var(--red);color:var(--red);}
+.dc-btn.active-clean{background:var(--green);color:#000;border-color:var(--green);}
+.dc-btn.active-relapse{background:var(--red);color:#fff;border-color:var(--red);}
+.dc-extra{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--border);}
+.dc-extra .fg{flex:1;min-width:130px;}
+.dc-extra .fg label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;display:block;}
+.dc-extra .fg input,.dc-extra .fg select{background:var(--s3);border:1px solid var(--border2);border-radius:7px;color:var(--text);padding:8px 10px;font-size:13px;outline:none;width:100%;font-family:var(--sans);}
+.dc-extra .fg input:focus,.dc-extra .fg select:focus{border-color:var(--red);box-shadow:0 0 0 2px var(--red-dim);}
+
 /* PDF BUTTON */
 .pdf-btn{padding:8px 18px;border-radius:7px;border:1px solid var(--green);background:var(--green-dim);color:var(--green);cursor:pointer;font-size:13px;font-weight:600;transition:background-color .15s,color .15s;font-family:var(--sans);display:inline-flex;align-items:center;gap:6px;}
 .pdf-btn:hover{background:var(--green);color:#000;}
@@ -436,12 +456,13 @@ let timeRangeFilter='All'; // Demo table only — calendar-based date filter
 
 // ── STATE ─────────────────────────────────────────────────
 // activePhase: 0=demo, 1-4=phase num
-// cur: -3=$30 challenge, -2=phase plan, -1=overview, 0..N=month index
+// cur: -4=discipline, -3=$30 challenge, -2=phase plan, -1=overview, 0..N=month index
 let allTrades = [];
 let activePhase = 0; // 0 = demo
 let cur = 0;
 let editingTradeId = null;   // id of trade currently being edited (or null)
 let challengeData = null;    // cached challenge_days map
+let disciplineData = null;   // cached discipline_entries array
 
 function getActivePhasemonths(){
   if(activePhase === 0) return DEMO_MONTHS.map((d,i)=>({l:d.l, full:d.full, s:null, t:null, isDemo:true, idx:i}));
@@ -613,6 +634,16 @@ function renderTabs(){
   ch.textContent='💰 $30 Challenge';
   ch.onclick=()=>goTo(-3);
   nav.appendChild(ch);
+
+  // Discipline tab
+  const dt=document.createElement('button');
+  dt.className='mtab'+(cur===-4?' active':'');
+  dt.style.borderColor='var(--red)';
+  dt.style.color=cur===-4?'#fff':'var(--red)';
+  dt.style.background=cur===-4?'var(--red)':'transparent';
+  dt.textContent='🛡️ Discipline';
+  dt.onclick=()=>goTo(-4);
+  nav.appendChild(dt);
 
   // Month tabs based on activePhase
   const months=getActivePhasemonths();
@@ -1478,7 +1509,8 @@ async function removeTrade(id, btn){
 function renderPage(){
   updateTopbar();
   renderTabs();
-  if(cur===-3) renderChallenge();
+  if(cur===-4) renderDiscipline();
+  else if(cur===-3) renderChallenge();
   else if(cur===-2) renderPhasePlan();
   else if(cur===-1) renderOverview();
   else if(activePhase===0) renderDemoMonth(cur);
@@ -1646,6 +1678,233 @@ async function updateChallenge(dayNum, field, value){
   }catch(e){
     toast('Save failed: '+e.message,'error');
   }
+}
+
+// ── DISCIPLINE TRACKER ───────────────────────────────────
+function todayPKT(){
+  const fmt = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Karachi',year:'numeric',month:'2-digit',day:'2-digit'});
+  return fmt.format(new Date()); // YYYY-MM-DD
+}
+
+function fmtNiceDate(iso){
+  const d = new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+function computeStreaks(entries){
+  const sorted=[...entries].sort((a,b)=>a.entry_date.localeCompare(b.entry_date));
+  let best=0, run=0, prevDate=null;
+  sorted.forEach(e=>{
+    if(e.status==='clean'){
+      const diff = prevDate ? (new Date(e.entry_date)-new Date(prevDate))/86400000 : null;
+      run = (diff===1) ? run+1 : 1;
+      if(run>best) best=run;
+    } else {
+      run=0;
+    }
+    prevDate=e.entry_date;
+  });
+  let current=0;
+  for(let i=sorted.length-1;i>=0;i--){
+    const e=sorted[i];
+    if(e.status!=='clean') break;
+    if(i===sorted.length-1){ current=1; }
+    else{
+      const diff=(new Date(sorted[i+1].entry_date)-new Date(e.entry_date))/86400000;
+      if(diff===1) current+=1; else break;
+    }
+  }
+  return {current, best};
+}
+
+function nextMilestone(current){
+  const arr=[7,14,30,60,90,180,365];
+  for(const m of arr) if(current<m) return m;
+  return current+30;
+}
+
+async function loadDisciplineData(force){
+  if(disciplineData && !force) return disciplineData;
+  try{
+    const res = await fetch(`${SB_URL}/rest/v1/discipline_entries?select=*&order=entry_date.desc`,{headers:HEADERS});
+    if(!res.ok){ disciplineData=[]; return disciplineData; }
+    disciplineData = await res.json();
+    return disciplineData;
+  }catch(e){ disciplineData=[]; return disciplineData; }
+}
+
+async function upsertDisciplineEntry(date, data){
+  const res = await fetch(`${SB_URL}/rest/v1/discipline_entries`, {
+    method:'POST',
+    headers:{...HEADERS,'Prefer':'resolution=merge-duplicates,return=representation'},
+    body: JSON.stringify({entry_date:date, ...data})
+  });
+  if(!res.ok){ const e=await res.text(); throw new Error(e); }
+  return await res.json();
+}
+
+async function markToday(status){
+  const date = todayPKT();
+  try{
+    const existing = (disciplineData||[]).find(e=>e.entry_date===date);
+    const payload = {
+      status,
+      slept_ok: existing ? existing.slept_ok : true,
+      trigger: existing ? existing.trigger : null,
+      note: existing ? existing.note : null
+    };
+    const rows = await upsertDisciplineEntry(date, payload);
+    const saved = rows[0];
+    if(!disciplineData) disciplineData=[];
+    const idx = disciplineData.findIndex(e=>e.entry_date===date);
+    if(idx>=0) disciplineData[idx]=saved; else disciplineData.push(saved);
+    disciplineData.sort((a,b)=>b.entry_date.localeCompare(a.entry_date));
+    renderDiscipline();
+    toast(status==='clean'?'Marked clean today ✓':'Relapse logged');
+  }catch(e){
+    toast('Save failed: '+e.message,'error');
+  }
+}
+
+async function updateDisciplineField(date, field, value){
+  try{
+    const entry = disciplineData.find(e=>e.entry_date===date);
+    if(!entry) return;
+    const payload = {status:entry.status, slept_ok:entry.slept_ok, trigger:entry.trigger, note:entry.note};
+    payload[field]=value;
+    const rows = await upsertDisciplineEntry(date, payload);
+    Object.assign(entry, rows[0]);
+    renderDiscipline();
+  }catch(e){
+    toast('Save failed: '+e.message,'error');
+  }
+}
+
+async function deleteDisciplineEntry(date){
+  if(!confirm('Delete entry for '+fmtNiceDate(date)+'?')) return;
+  try{
+    const res = await fetch(`${SB_URL}/rest/v1/discipline_entries?entry_date=eq.${date}`,{method:'DELETE',headers:HEADERS});
+    if(!res.ok) throw new Error(await res.text());
+    disciplineData = disciplineData.filter(e=>e.entry_date!==date);
+    renderDiscipline();
+    toast('Entry deleted');
+  }catch(e){
+    toast('Delete failed: '+e.message,'error');
+  }
+}
+
+async function renderDiscipline(){
+  const loadingHtml='<div class="loading-overlay"><div class="spinner"></div> Loading discipline data...</div>';
+  if(!disciplineData) document.getElementById('mainContent').innerHTML=loadingHtml;
+  const data = await loadDisciplineData();
+  const today = todayPKT();
+  const todayEntry = data.find(e=>e.entry_date===today);
+  const {current, best} = computeStreaks(data);
+  const monthPrefix = today.slice(0,7);
+  const monthEntries = data.filter(e=>e.entry_date.startsWith(monthPrefix));
+  const monthClean = monthEntries.filter(e=>e.status==='clean').length;
+  const monthPct = monthEntries.length ? Math.round(monthClean/monthEntries.length*100) : null;
+  const nm = nextMilestone(current);
+  const prog = Math.min(100, (current/nm)*100);
+  const statusMsg = current>0 ? '🔥 '+current+' day streak' : (data.length ? 'Streak broken — restart today' : 'Start your streak today');
+
+  let html = `
+  <div class="phase-header fade-in" style="border-color:var(--red);background:linear-gradient(135deg,#1a0d0d,#0e1523);">
+    <h2 style="color:var(--red)">🛡️ Discipline Tracker</h2>
+    <p>Trading discipline · daily clean streak</p>
+    <div class="current-badge" style="background:var(--red-dim);border-color:var(--red);color:var(--red);">${statusMsg}</div>
+  </div>
+
+  <div class="prog-wrap fade-in">
+    <div class="prog-top">
+      <span class="prog-label">Streak Progress · toward ${nm} days</span>
+      <span class="prog-pct" style="color:var(--red)">${current}/${nm}</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" style="width:${prog}%;background:linear-gradient(90deg,var(--red),var(--gold))"></div>
+    </div>
+  </div>
+
+  <div class="stats-row fade-in">
+    <div class="scard green"><div class="sc-lbl">Current Streak</div><div class="sc-val green">${current}</div><div class="sc-sub">days clean</div></div>
+    <div class="scard gold"><div class="sc-lbl">Best Streak</div><div class="sc-val gold">${best}</div><div class="sc-sub">days clean</div></div>
+    <div class="scard blue"><div class="sc-lbl">This Month</div><div class="sc-val blue">${monthPct===null?'—':monthPct+'%'}</div><div class="sc-sub">${monthEntries.length} logged</div></div>
+    <div class="scard purple"><div class="sc-lbl">Total Logged</div><div class="sc-val purple">${data.length}</div><div class="sc-sub">all-time days</div></div>
+  </div>
+
+  <div class="discipline-checkin fade-in">
+    <div class="section-title">Today · ${fmtNiceDate(today)}</div>
+    <div class="dc-buttons">
+      <button class="dc-btn clean ${todayEntry?.status==='clean'?'active-clean':''}" onclick="markToday('clean')">✅ Clean Day</button>
+      <button class="dc-btn relapse ${todayEntry?.status==='relapse'?'active-relapse':''}" onclick="markToday('relapse')">⚠️ Relapse</button>
+    </div>
+    ${todayEntry ? `
+    <div class="dc-extra">
+      <div class="fg">
+        <label>Slept OK</label>
+        <select onchange="updateDisciplineField('${today}','slept_ok',this.value==='true')">
+          <option value="true" ${todayEntry.slept_ok?'selected':''}>Yes</option>
+          <option value="false" ${!todayEntry.slept_ok?'selected':''}>No</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Trigger</label>
+        <input type="text" value="${todayEntry.trigger||''}" placeholder="What triggered..." onchange="updateDisciplineField('${today}','trigger',this.value)">
+      </div>
+      <div class="fg" style="flex:2;">
+        <label>Note</label>
+        <input type="text" value="${todayEntry.note||''}" placeholder="Notes..." onchange="updateDisciplineField('${today}','note',this.value)">
+      </div>
+    </div>` : ''}
+  </div>
+
+  <div class="trades-wrap fade-in">
+    <div class="tw-header">
+      <div class="tw-title">History</div>
+      <span class="tw-badge">${data.length} entries</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Date</th><th>Status</th><th>Slept OK</th><th>Trigger</th><th>Note</th><th></th>
+        </tr></thead>
+        <tbody>
+        ${data.length ? data.map(e=>`
+        <tr>
+          <td class="entry-cell">${fmtNiceDate(e.entry_date)}</td>
+          <td>
+            <select onchange="updateDisciplineField('${e.entry_date}','status',this.value)"
+              style="background:${e.status==='clean'?'var(--green-dim)':'var(--red-dim)'};color:${e.status==='clean'?'var(--green)':'var(--red)'};border:1px solid ${e.status==='clean'?'var(--green)':'var(--red)'};border-radius:5px;padding:5px 8px;font-size:12px;font-weight:600;font-family:var(--sans);">
+              <option value="clean" ${e.status==='clean'?'selected':''}>✅ Clean</option>
+              <option value="relapse" ${e.status==='relapse'?'selected':''}>⚠️ Relapse</option>
+            </select>
+          </td>
+          <td>
+            <select onchange="updateDisciplineField('${e.entry_date}','slept_ok',this.value==='true')"
+              style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 8px;font-size:12px;font-family:var(--sans);">
+              <option value="true" ${e.slept_ok?'selected':''}>Yes</option>
+              <option value="false" ${!e.slept_ok?'selected':''}>No</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" value="${e.trigger||''}" placeholder="—"
+              onchange="updateDisciplineField('${e.entry_date}','trigger',this.value)"
+              style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 7px;font-size:12px;width:110px;font-family:var(--sans);">
+          </td>
+          <td>
+            <input type="text" value="${e.note||''}" placeholder="—"
+              onchange="updateDisciplineField('${e.entry_date}','note',this.value)"
+              style="background:var(--s3);border:1px solid var(--border2);border-radius:5px;color:var(--text);padding:5px 7px;font-size:12px;width:160px;font-family:var(--sans);">
+          </td>
+          <td class="row-actions">
+            <button class="del-btn" onclick="deleteDisciplineEntry('${e.entry_date}')" title="Delete">🗑</button>
+          </td>
+        </tr>`).join('') : '<tr class="empty-row"><td colspan="6">No entries yet. Mark today above to start.</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+  document.getElementById('mainContent').innerHTML = html;
 }
 
 // ── INIT ──────────────────────────────────────────────────
